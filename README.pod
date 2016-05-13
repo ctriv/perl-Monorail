@@ -1,0 +1,24 @@
+=pod
+
+=head1 NAME
+
+Monorail
+
+=head1 VERSION
+
+version 0.1
+
+=head1 SYNOPSIS
+
+   ./monorail.pl make_migration
+   ./monorail.pl migrate
+
+=head1 DESCRIPTION
+
+This module attempts to provide a simplier and more robust way to manage
+database migrations with L<DBI::Class>.
+
+This module is not remotely ready for generate use.  It is no more than a
+sketch at the moment.
+
+=cut
