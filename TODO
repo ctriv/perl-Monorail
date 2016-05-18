@@ -1,0 +1,7 @@
+Figure out a real dependency model.  Right now we're just depending on
+everything before us.  We really should be looking at migrations on a per-table
+and fk basis.
+
+Move to change operations.  The migration would then be a list of changed
+operations.  We could then build an in-memory model from the migrations and
+compare that against the model on disk.

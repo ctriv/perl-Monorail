@@ -54,10 +54,7 @@ __PACKAGE__->meta->make_immutable;
 sub _build_inner_obj {
     my ($self) = @_;
 
-    my $uuid = create_uuid_as_string();
-    $uuid =~ s/-/_/g;
-
-    my $classname = "migration_$uuid";
+    my $classname = Class::MOP::Package->create_anon();
 
     my $perl = read_text($self->filename);
     $perl = "package $classname;\n$perl";
