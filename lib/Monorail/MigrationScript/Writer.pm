@@ -3,6 +3,8 @@ package Monorail::MigrationScript::Writer;
 use Moose;
 use SQL::Translator::Diff;
 use Text::MicroTemplate::DataSection qw(render_mt);
+use Text::MicroTemplate qw(encoded_string);
+
 use File::Path qw(make_path);
 
 use namespace::autoclean;
@@ -56,19 +58,27 @@ __PACKAGE__->meta->make_immutable;
 =cut
 
 
-
-
 sub write_file {
     my ($self) = @_;
 
-    my $dependencies  = join('  ', @{$self->dependencies});
-    my @upgrade_sql   = $self->diff->produce_diff_sql;
-    my @downgrade_sql = $self->reversed_diff->produce_diff_sql;
+    my $dependencies      = join('  ', @{$self->dependencies});
+    my @upgrade_changes   = $self->diff->produce_diff_sql;
 
-    @upgrade_sql   = $self->_munge_sql(@upgrade_sql);
-    @downgrade_sql = $self->_munge_sql(@downgrade_sql);
+    # use Data::Dumper;
+    # warn Dumper($self->reversed_diff);
 
-    my $perl = render_mt('migration_script', $dependencies, \@upgrade_sql, \@downgrade_sql);
+    my @downgrade_changes = $self->reversed_diff->produce_diff_sql;
+
+    @upgrade_changes   = $self->_munge_diff(@upgrade_changes);
+    @downgrade_changes = $self->_munge_diff(@downgrade_changes);
+
+    return 0 unless @upgrade_changes;
+
+    my $perl = render_mt('migration_script', {
+        depends    => encoded_string($dependencies),
+        up_steps   => [map { encoded_string($_) } @upgrade_changes],
+        down_steps => [map { encoded_string($_) } @downgrade_changes],
+    });
 
     my $filename = sprintf("%s/%s.pl", $self->basedir, $self->name);
 
@@ -93,14 +103,15 @@ sub _build_reversed_diff {
     })->compute_differences;
 }
 
-sub _munge_sql {
-    my ($self, @rows) = @_;
+sub _munge_diff {
+    my ($self, @diff) = @_;
 
-    @rows = grep { m/\S/ && !m/^BEGIN/ && !m/^COMMIT/ && !m/^--/ }
-             map { s/\s+$//; s/^\s+//; s/"/\\"/; $_ }
-             @rows;
+    @diff = grep { m/^Monorail::/ } @diff;
+    for (@diff) {
+        s/;\s+$//s;
+    }
 
-    return @rows;
+    return @diff;
 }
 
 1;
@@ -108,6 +119,7 @@ __DATA__
 
 @@ migration_script
 #!perl
+? local $_ = $_[0];
 
 use Moose;
 
@@ -117,13 +129,13 @@ __PACKAGE__->meta->make_immutable;
 
 
 sub dependencies {
-    return [qw/<?= $_[0] ?>/];
+    return [qw/<?= $_->{depends} ?>/];
 }
 
-sub upgrade_sql {
+sub upgrade_steps {
     return [
-? foreach my $statement (@{$_[1]}) {
-        "<?= $statement ?>",
+? foreach my $change (@{$_->{up_steps}}) {
+        <?= $change ?>,
 ? }
     ];
 }
@@ -131,19 +143,19 @@ sub upgrade_sql {
 sub upgrade_extras {
     my ($self) = @_;
     # $self->dbix gives you access to your DBIx::Class schema if you need to add
-    # data  do extra work, etc....
+    # data do extra work, etc....
     #
     # For example:
     #
     #  $self->dbix->tnx_do(sub {
-    #      $self->dbix->resultset('foo')->insert(%stuff)
+    #      $self->dbix->resultset('foo')->create(\%stuff)
     #  });
 }
 
-sub downgrade_sql {
+sub downgrade_steps {
     return [
-? foreach my $statement (@{$_[2]}) {
-        "<?= $statement ?>",
+? foreach my $change (@{$_->{down_steps}}) {
+        <?= $change ?>,
 ? }
     ];
 }

@@ -23,7 +23,7 @@ has schema_table_object => (
     builder => '_build_schema_table_object',
 );
 
-requires 'as_hashref_keys';
+requires qw/as_hashref_keys/;
 
 
 sub as_perl {

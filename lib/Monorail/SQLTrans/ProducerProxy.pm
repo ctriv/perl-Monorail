@@ -29,7 +29,7 @@ sub _build_producer_class {
 }
 
 
-foreach my $meth (qw/add_field create_table/) {
+foreach my $meth (qw/add_field create_table drop_field drop_table/) {
     __PACKAGE__->meta->add_method(
         $meth => sub {
             my $self = shift;

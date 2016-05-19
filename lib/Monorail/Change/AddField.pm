@@ -56,7 +56,7 @@ sub as_sql_translator_field {
         data_type      => $self->type,
         is_nullable    => $self->is_nullable,
         is_primary_key => $self->is_primary_key,
-        is_uniq        => $self->is_unique,
+        is_unique      => $self->is_unique,
         default_value  => $self->default_value,
     );
 }

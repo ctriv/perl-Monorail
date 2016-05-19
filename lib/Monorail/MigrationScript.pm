@@ -17,7 +17,7 @@ has inner_obj => (
     does    => 'Monorail::Migration',
     lazy    => 1,
     builder => '_build_inner_obj',
-    handles => [qw/upgrade downgrade dependencies/],
+    handles => [qw/upgrade downgrade dependencies upgrade_steps/],
 );
 
 has dbix => (
@@ -54,11 +54,13 @@ __PACKAGE__->meta->make_immutable;
 sub _build_inner_obj {
     my ($self) = @_;
 
-    my $classname = Class::MOP::Package->create_anon();
+    my $anon_class = Moose::Meta::Class->create_anon_class();
+    my $classname  = $anon_class->name;
 
     my $perl = read_text($self->filename);
     $perl = "package $classname;\n$perl";
 
+    #warn "eval { $perl }\n";
     eval "$perl";
     die $@ if $@;
 

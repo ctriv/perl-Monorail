@@ -3,9 +3,40 @@ package SQL::Translator::Producer::Monorail;
 use strict;
 use warnings;
 
+use Module::Find;
+
+usesub Monorail::Change;
 
 sub produce {
-    return ''; # we don't produce a whole schema at once... yet?
+    my ($trans) = @_;
+
+    my $schema = $trans->schema;
+
+    my @tables = map { create_table($_) } $schema->get_tables;
+
+    return @tables;
+}
+
+sub create_table {
+    my ($table) = @_;
+
+    my @fields;
+    foreach my $fld ($table->get_fields) {
+        push(@fields, {
+            table          => $fld->table->name,
+            name           => $fld->name,
+            type           => $fld->data_type,
+            is_nullable    => $fld->is_nullable,
+            is_primary_key => $fld->is_primary_key,
+            is_unique      => $fld->is_unique,
+            default_value  => $fld->default_value,
+        });
+    }
+
+    return Monorail::Change::CreateTable->new(
+        name   => $table->name,
+        fields => \@fields,
+    )->as_perl;
 }
 
 
@@ -33,12 +64,12 @@ sub add_field {
     my ($fld, $args) = @_;
 
     return Monorail::Change::AddField->new(
-        table => $fld->table->name,
-        name  => $fld->name,
-        type  => $fld->data_type,
-        is_nullable => $fld->is_nullable,
+        table          => $fld->table->name,
+        name           => $fld->name,
+        type           => $fld->data_type,
+        is_nullable    => $fld->is_nullable,
         is_primary_key => $fld->is_primary_key,
-        is_unique      => $fld->is_uniq,
+        is_unique      => $fld->is_unique,
         default_value  => $fld->default_value,
     )->as_perl;
 }
@@ -56,6 +87,11 @@ sub rename_field {
 
 sub drop_field {
     my ($fld, $args) = @_;
+
+    return Monorail::Change::DropField->new(
+        table => $fld->table->name,
+        name  => $fld->name,
+    )->as_perl;
 }
 
 
@@ -66,6 +102,10 @@ sub alter_table {
 
 sub drop_table {
     my ($table, $args) = @_;
+
+    return Monorail::Change::DropTable->new(
+        name => $table->name,
+    )->as_perl;
 }
 
 

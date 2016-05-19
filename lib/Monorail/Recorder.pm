@@ -26,12 +26,6 @@ has version_resultset_name => (
     default => '__monorail_migrations'
 );
 
-has protoschema => (
-    is      => 'ro',
-    isa     => 'DBIx::Class::Schema',
-    lazy    => 1,
-    builder => '_build_protoschema',
-);
 
 has _table_is_present => (
     is      => 'rw',
@@ -39,7 +33,10 @@ has _table_is_present => (
     default => 0,
 );
 
-__PACKAGE__->meta->make_immutable;
+
+with 'Monorail::Role::ProtoSchema';
+
+
 
 
 sub is_applied {
@@ -72,16 +69,17 @@ sub _build_version_resultset {
     return $self->protoschema->resultset($self->version_resultset_name);
 }
 
-sub _build_protoschema {
-    my ($self) = @_;
+around _build_protoschema => sub {
+    my ($orig, $self) = @_;
+
+    my $schema = $self->$orig;
 
     require Monorail::Recorder::monorail_resultset;
 
-    my $schema = DBIx::Class::Schema->connect(sub { $self->dbix->storage->dbh });
     $schema->register_class($self->version_resultset_name => 'Monorail::Recorder::monorail_resultset');
 
     return $schema;
-}
+};
 
 sub _ensure_our_table {
     my ($self) = @_;
@@ -96,6 +94,10 @@ sub _ensure_our_table {
 
     $self->_table_is_present(1);
 }
+
+
+__PACKAGE__->meta->make_immutable;
+
 
 1;
 __END__

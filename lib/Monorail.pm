@@ -48,6 +48,9 @@ has all_migrations => (
     builder  => '_build_set_of_all_migrations',
 );
 
+with 'Monorail::Role::ProtoSchema';
+
+
 # ABSTRACT: Database migrations for DBIx::Class
 
 __PACKAGE__->meta->make_immutable;
@@ -77,12 +80,12 @@ sub make_migration {
 
     $name ||= $self->_next_auto_name;
 
-    my $schema_database = $self->_schema_from_database;
-    my $schema_perl     = $self->_schema_from_dbix;
+    my $schema_migrations = $self->_schema_from_current_migrations;
+    my $schema_perl       = $self->_schema_from_dbix;
 
     my $diff = SQL::Translator::Diff->new({
-        output_db     => $self->db_type,
-        source_schema => $schema_database,
+        output_db     => 'Monorail',
+        source_schema => $schema_migrations,
         target_schema => $schema_perl,
     })->compute_differences;
 
@@ -93,7 +96,12 @@ sub make_migration {
         dependencies => $self->_derive_current_dependencies(),
     );
 
-    $script->write_file();
+    if ($script->write_file()) {
+        print "Created $name.\n";
+    }
+    else {
+        print "No changes detected.\n";
+    }
 
     return 1;
 }
@@ -115,44 +123,48 @@ sub _next_auto_name {
 sub _derive_current_dependencies {
     my ($self)  = @_;
     my $base    = $self->basedir;
+
+    # this is completely temp until we can build a real depenency walker.
     my @deps    = map  { m/([-\w]+)\.pl$/ }
                   glob("$base/*.pl");
 
     return \@deps;
 }
 
-sub _schema_from_database {
+sub _schema_from_current_migrations {
     my ($self) = @_;
 
-    my $trans = SQL::Translator->new(
-        trace       => $self->debug,
-        parser      => 'DBI',
-        parser_args => { dbh => $self->dbix->storage->dbh },
-    );
+    my $proto_schema = $self->protoschema;
 
-    $trans->translate;
+    foreach my $migration ($self->all_migrations->in_topological_order) {
+        my $changes = $migration->upgrade_steps;
 
-    my $schema = $trans->schema;
+        foreach my $change (@$changes) {
+            $change->update_dbix_schema($proto_schema)
+        }
+    }
 
-    # we remove the table that we use to track migrations internally.
-    $schema->drop_table($Monorail::Recorder::TableName);
-    warn "\$schema->drop_table($Monorail::Recorder::TableName);\n";
-
-    return $schema;
+    return $self->_parse_dbix_class($proto_schema);
 }
 
 sub _schema_from_dbix {
     my ($self) = @_;
 
+    return $self->_parse_dbix_class($self->dbix);
+}
+
+sub _parse_dbix_class {
+    my ($self, $dbix) = @_;
+
     my $trans = SQL::Translator->new(
         parser      => 'SQL::Translator::Parser::DBIx::Class',
         parser_args => {
-            dbic_schema => $self->dbix,
+            dbic_schema => $dbix,
             # exclude our table, as it gets handled seperately.
             sources => [
                sort { $a cmp $b }
                grep { $_ ne $self->recorder->version_resultset_name }
-               $self->dbix->sources
+               $dbix->sources
             ],
         },
     );

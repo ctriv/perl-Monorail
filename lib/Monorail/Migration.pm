@@ -1,8 +1,11 @@
 package Monorail::Migration;
 
 use Moose::Role;
+use Module::Find;
 
-requires qw/dependencies upgrade_sql upgrade_extras downgrade_sql downgrade_extras/;
+usesub Monorail::Change;
+
+requires qw/dependencies upgrade_steps upgrade_extras downgrade_steps downgrade_extras/;
 
 has dbix     => (
     is       => 'ro',
@@ -17,10 +20,10 @@ sub upgrade {
     my $schema = $self->dbix;
     my $txn_guard = $schema->txn_scope_guard;
 
-    my @statements = @{$self->upgrade_sql};
+    my @changes = @{$self->upgrade_steps};
 
-    foreach my $statement (@{$self->upgrade_sql}) {
-        $schema->storage->dbh->do($statement);
+    foreach my $change (@changes) {
+        $schema->storage->dbh->do($change->as_sql);
     }
 
     $self->upgrade_extras;
@@ -34,8 +37,9 @@ sub downgrade {
     my $schema    = $self->dbix;
     my $txn_guard = $schema->txn_scope_guard;
 
-    foreach my $statement (@{$self->downgrade_sql}) {
-        $schema->storage->dbh->do($statement);
+    my @changes = @{$self->downgrade_steps};
+    foreach my $change (@changes) {
+        $schema->storage->dbh->do($change->as_sql);
     }
 
     $self->downgrade_extras;
