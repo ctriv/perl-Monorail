@@ -193,7 +193,7 @@ sub migrate {
 
         print "Applying " . $migration->name . "... ";
 
-        $migration->upgrade();
+        $migration->upgrade($self->db_type);
 
         print "done.\n";
 

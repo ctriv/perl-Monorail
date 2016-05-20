@@ -24,6 +24,8 @@ sub as_sql {
 
     my ($create, $fks) = $self->producer->create_table($table);
 
+    $fks ||= [];
+
     return ($create, @$fks);
 }
 
