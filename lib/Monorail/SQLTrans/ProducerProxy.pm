@@ -28,8 +28,12 @@ sub _build_producer_class {
     return $class;
 }
 
+my @methods = qw/
+    add_field create_table drop_field drop_table alter_field
+    alter_create_constraint alter_drop_constraint alter_create_index
+/;
 
-foreach my $meth (qw/add_field create_table drop_field drop_table/) {
+foreach my $meth (@methods) {
     __PACKAGE__->meta->add_method(
         $meth => sub {
             my $self = shift;

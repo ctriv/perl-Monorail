@@ -100,6 +100,7 @@ sub _build_reversed_diff {
         output_db     => $diff->output_db,
         source_schema => $diff->target_schema,
         target_schema => $diff->source_schema,
+        # ignore_missing_methods => 1,
     })->compute_differences;
 }
 
@@ -109,6 +110,7 @@ sub _munge_diff {
     @diff = grep { m/^Monorail::/ } @diff;
     for (@diff) {
         s/;\s+$//s;
+        s/^/        /mg;
     }
 
     return @diff;
@@ -135,7 +137,7 @@ sub dependencies {
 sub upgrade_steps {
     return [
 ? foreach my $change (@{$_->{up_steps}}) {
-        <?= $change ?>,
+<?= $change ?>,
 ? }
     ];
 }
@@ -155,7 +157,7 @@ sub upgrade_extras {
 sub downgrade_steps {
     return [
 ? foreach my $change (@{$_->{down_steps}}) {
-        <?= $change ?>,
+<?= $change ?>,
 ? }
     ];
 }

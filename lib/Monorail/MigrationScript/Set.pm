@@ -45,7 +45,7 @@ sub in_topological_order {
         $by_name{$migration->name} = $migration;
     }
 
-    my @sorted = tsort(Graph(ADJ => \%adj), keys %adj);
+    my @sorted = reverse tsort(Graph(ADJ => \%adj), keys %adj);
 
     return map { $by_name{$_} } @sorted;
 }

@@ -92,4 +92,5 @@ sub anonymous_class_for_table {
 }
 
 
+
 1;

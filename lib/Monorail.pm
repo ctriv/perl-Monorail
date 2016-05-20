@@ -84,9 +84,10 @@ sub make_migration {
     my $schema_perl       = $self->_schema_from_dbix;
 
     my $diff = SQL::Translator::Diff->new({
-        output_db     => 'Monorail',
-        source_schema => $schema_migrations,
-        target_schema => $schema_perl,
+        output_db              => 'Monorail',
+        source_schema          => $schema_migrations,
+        target_schema          => $schema_perl,
+        # ignore_missing_methods => 1,
     })->compute_differences;
 
     my $script = Monorail::MigrationScript::Writer->new(
@@ -137,12 +138,16 @@ sub _schema_from_current_migrations {
     my $proto_schema = $self->protoschema;
 
     foreach my $migration ($self->all_migrations->in_topological_order) {
+        warn sprintf("Applying %s to the protoschema...\n", $migration->name);
         my $changes = $migration->upgrade_steps;
 
         foreach my $change (@$changes) {
             $change->update_dbix_schema($proto_schema)
         }
     }
+
+    # use Data::Dumper;
+    # die Dumper($proto_schema);
 
     return $self->_parse_dbix_class($proto_schema);
 }
