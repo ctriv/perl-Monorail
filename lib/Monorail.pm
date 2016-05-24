@@ -78,7 +78,7 @@ sketch at the moment.
 sub make_migration {
     my ($self, $name) = @_;
 
-    $name ||= $self->_next_auto_name;
+    $name ||= $self->all_migrations->next_auto_name;
 
     my $schema_migrations = $self->_schema_from_current_migrations;
     my $schema_perl       = $self->_schema_from_dbix;
@@ -106,19 +106,6 @@ sub make_migration {
     return 1;
 }
 
-
-sub _next_auto_name {
-    my ($self) = @_;
-
-    my $base    = $self->basedir;
-    my @numbers = sort { $b <=> $a }
-                  map  { m/(\d+)_auto\.pl/ }
-                  glob("$base/*_auto.pl");
-
-    my $max = $numbers[0] || 0;
-
-    return sprintf("%04d_auto", $max + 1);
-}
 
 
 sub _schema_from_current_migrations {

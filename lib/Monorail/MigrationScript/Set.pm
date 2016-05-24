@@ -4,7 +4,7 @@ use Moose;
 use Path::Class;
 use namespace::autoclean;
 use Monorail::MigrationScript;
-use Algorithm::TSort qw(:all);
+use Graph;
 
 has basedir => (
     is       => 'ro',
@@ -21,7 +21,7 @@ has files => (
 
 has migrations => (
     is      => 'ro',
-    isa     => 'ArrayRef[Monorail::MigrationScript]',
+    isa     => 'HashRef[Monorail::MigrationScript]',
     lazy    => 1,
     builder => '_build_migrations'
 );
@@ -32,27 +32,74 @@ has dbix => (
     required => 1,
 );
 
+has graph => (
+    is      => 'ro',
+    isa     => 'Graph',
+    lazy    => 1,
+    builder => '_build_graph'
+);
+
 
 __PACKAGE__->meta->make_immutable;
 
 sub in_topological_order {
     my ($self) = @_;
 
-    my %adj;
-    my %by_name;
-    foreach my $migration (@{$self->migrations}) {
-        $adj{$migration->name}     = $migration->dependencies;
-        $by_name{$migration->name} = $migration;
+    return map { $self->migrations->{$_} } $self->graph->topological_sort;
+}
+
+sub current_dependencies {
+    my ($self) = @_;
+
+    my @deps = $self->graph->sink_vertices;
+
+    if (!@deps) {
+        # we might be in the special case of building the second migration...
+        @deps = $self->graph->isolated_vertices
     }
 
-    my @sorted = reverse tsort(Graph(ADJ => \%adj), keys %adj);
+    return map { $self->migrations->{$_} } @deps;
+}
 
-    return map { $by_name{$_} } @sorted;
+
+sub next_auto_name {
+    my ($self) = @_;
+
+    my $base    = $self->basedir;
+    my @numbers = sort { $b <=> $a }
+                  map  { m/(\d+)_auto\.pl/ }
+                  glob("$base/*_auto.pl");
+
+    my $max = $numbers[0] || 0;
+
+    return sprintf("%04d_auto", $max + 1);
+}
+
+
+sub _build_graph {
+    my ($self) = @_;
+
+    my $graph = Graph->new(directed => 1);
+
+    foreach my $migration (values %{$self->migrations}) {
+        # add the migration as a vertex to handle the case of a single migration.
+        # if we don't make the vertex, we'll have an empty graph because this
+        # migration has no deps and the loop below doesn't run.
+        $graph->add_vertex($migration->name);
+
+        foreach my $dep (@{$migration->dependencies}) {
+            #warn sprintf("Making edge: %s --> %s\n", $dep, $migration->name);
+            $graph->add_edge($dep, $migration->name)
+        }
+    }
+
+    return $graph;
 }
 
 
 sub _build_filelist {
     my ($self) = @_;
+
 
     my $dir = dir($self->basedir);
 
@@ -68,14 +115,17 @@ sub _build_filelist {
 sub _build_migrations {
     my ($self) = @_;
 
-    return [
-        map {
-            Monorail::MigrationScript->new(
-                filename => $_,
-                dbix     => $self->dbix,
-            )
-        } @{$self->files}
-    ];
+    my %migrations;
+    foreach my $file (@{$self->files}) {
+        my $migration = Monorail::MigrationScript->new(
+            filename => $file,
+            dbix     => $self->dbix,
+        );
+
+        $migrations{$migration->name} = $migration;
+    }
+
+    return \%migrations;
 }
 
 1;
