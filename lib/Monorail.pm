@@ -87,14 +87,13 @@ sub make_migration {
         output_db              => 'Monorail',
         source_schema          => $schema_migrations,
         target_schema          => $schema_perl,
-        # ignore_missing_methods => 1,
     })->compute_differences;
 
     my $script = Monorail::MigrationScript::Writer->new(
         name         => $name,
         basedir      => $self->basedir,
         diff         => $diff,
-        dependencies => $self->_derive_current_dependencies(),
+        dependencies => [ map { $_->name } $self->all_migrations->current_dependencies ],
     );
 
     if ($script->write_file()) {
@@ -121,16 +120,6 @@ sub _next_auto_name {
     return sprintf("%04d_auto", $max + 1);
 }
 
-sub _derive_current_dependencies {
-    my ($self)  = @_;
-    my $base    = $self->basedir;
-
-    # this is completely temp until we can build a real depenency walker.
-    my @deps    = map  { m/([-\w]+)\.pl$/ }
-                  glob("$base/*.pl");
-
-    return \@deps;
-}
 
 sub _schema_from_current_migrations {
     my ($self) = @_;
