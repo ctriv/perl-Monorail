@@ -2,6 +2,7 @@ package Monorail::Change;
 
 use Moose::Role;
 use Data::Dumper ();
+use SQL::Translator;
 
 has producer => (
     is       => 'ro',
@@ -23,7 +24,7 @@ has schema_table_object => (
     builder => '_build_schema_table_object',
 );
 
-requires qw/as_hashref_keys/;
+requires qw/as_hashref_keys as_sql update_dbix_schema/;
 
 # table first, then name, then the rest sorted alpha.
 my $key_sorter = sub {
