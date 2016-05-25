@@ -11,7 +11,7 @@ use SQL::Translator::Diff;
 
 =head1 NAME
 
-Monorail
+Monorail - Database Migrations
 
 =head1 SYNOPSIS
 
