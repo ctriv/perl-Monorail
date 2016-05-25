@@ -89,8 +89,8 @@ sub add_dbix_sqlt_callback {
 
 sub _build_schema_table_object {
     my ($self) = @_;
-    require SQL::Translator::Schema::Table;
 
+    require SQL::Translator::Schema::Table;
     return SQL::Translator::Schema::Table->new(name => $self->table);
 }
 
