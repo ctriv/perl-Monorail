@@ -3,7 +3,7 @@ package Monorail::Change::CreateIndex;
 use Moose;
 use SQL::Translator::Schema::Index;
 
-with 'Monorail::Change';
+with 'Monorail::Role::Change';
 
 =head1 SYNOPSIS
 
@@ -53,7 +53,7 @@ sub as_sql_translator_index {
     );
 }
 
-sub update_dbix_schema {
+sub transform_model {
     my ($self, $dbix) = @_;
 
     $self->add_dbix_sqlt_callback($dbix, $self->table, sub {

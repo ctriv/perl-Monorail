@@ -46,11 +46,9 @@ describe 'An create table change' => sub {
     it 'manipulates an in-memory schema' => sub {
         my $schema = DBIx::Class::Schema->connect(sub { DBI->connect('dbi:SQLite:dbname=:memory:') });
 
-
         $sut->db_type('SQLite');
 
-        $sut->update_dbix_schema($schema);
-
+        $sut->transform_model($schema);
 
         my $col = $schema->source('epcot')->column_info('id');
 

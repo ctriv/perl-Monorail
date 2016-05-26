@@ -25,12 +25,8 @@ sub upgrade {
     foreach my $change (@changes) {
         $change->db_type($db_type);
 
-        foreach my $statement ($change->as_sql) {
-            $schema->storage->dbh->do($statement);
-        }
+        $change->transform_database($schema);
     }
-
-    $self->upgrade_extras;
 
     $txn_guard->commit;
 }
@@ -44,11 +40,10 @@ sub downgrade {
     my @changes = @{$self->downgrade_steps};
     foreach my $change (@changes) {
         $change->db_type($db_type);
-        $schema->storage->dbh->do($change->as_sql);
+
+        $change->transform_database($schema)
     }
-
-    $self->downgrade_extras;
-
+    
     $txn_guard->commit;
 }
 

@@ -6,7 +6,7 @@ use SQL::Translator::Schema;
 use SQL::Translator::Schema::Table;
 use SQL::Translator::Schema::Constraint;
 
-with 'Monorail::Change';
+with 'Monorail::Role::Change::StandardSQL';
 
 has name   => (is => 'ro', isa => 'Str',                required => 1);
 has fields => (is => 'ro', isa => 'ArrayRef[HashRef]',  required => 1);
@@ -56,7 +56,7 @@ sub as_sql_translator_table {
     return $table;
 }
 
-sub update_dbix_schema {
+sub transform_model {
     my ($self, $dbix) = @_;
 
     # This is going to need to be tweak, right now we're not tracking the

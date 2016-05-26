@@ -56,11 +56,11 @@ describe 'An add field change' => sub {
             db_type => 'SQLite'
         );
 
-        $table_add->update_dbix_schema($schema);
+        $table_add->transform_model($schema);
 
         $sut->db_type('SQLite');
 
-        $sut->update_dbix_schema($schema);
+        $sut->transform_model($schema);
 
 
         my $col = $schema->source('epcot')->column_info('description');

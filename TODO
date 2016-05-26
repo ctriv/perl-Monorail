@@ -3,3 +3,5 @@ Wrap up all the missing changes.
 Finish tests.
 
 Finish POD.
+
+Autodetect db type.

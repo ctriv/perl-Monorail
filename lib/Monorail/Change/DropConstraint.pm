@@ -3,7 +3,7 @@ package Monorail::Change::DropConstraint;
 use Moose;
 use SQL::Translator::Schema::Constraint;
 
-with 'Monorail::Change';
+with 'Monorail::Role::Change::StandardSQL';
 
 =head1 SYNOPSIS
 
@@ -52,7 +52,7 @@ sub as_sql_translator_constraint {
     );
 }
 
-sub update_dbix_schema {
+sub transform_model {
     my ($self, $dbix) = @_;
 
     # This is going to need to be tweak, right now we're not tracking the

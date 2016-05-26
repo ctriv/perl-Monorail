@@ -139,12 +139,13 @@ sub upgrade_steps {
 ? foreach my $change (@{$_->{up_steps}}) {
 <?= $change ?>,
 ? }
+        # Monorail::Change::RunPerl->new(function => \&upgrade_extras),
     ];
 }
 
 sub upgrade_extras {
-    my ($self) = @_;
-    # $self->dbix gives you access to your DBIx::Class schema if you need to add
+    my ($dbix) = @_;
+    # $dbix gives you access to your DBIx::Class schema if you need to add
     # data do extra work, etc....
     #
     # For example:
@@ -159,11 +160,12 @@ sub downgrade_steps {
 ? foreach my $change (@{$_->{down_steps}}) {
 <?= $change ?>,
 ? }
+        # Monorail::Change::RunPerl->new(function => \&downgrade_extras),
     ];
 }
 
 sub downgrade_extras {
-    my ($self) = @_;
+    my ($dbix) = @_;
     # Same drill as upgrade_extras - you know what to do!
 }
 

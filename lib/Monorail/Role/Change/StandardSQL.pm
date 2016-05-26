@@ -1,8 +1,11 @@
-package Monorail::Change;
+package Monorail::Role::Change::StandardSQL;
 
 use Moose::Role;
-use Data::Dumper ();
 use SQL::Translator;
+
+with 'Monorail::Role::Change';
+
+requires qw/as_sql/;
 
 has producer => (
     is       => 'ro',
@@ -23,42 +26,6 @@ has schema_table_object => (
     lazy    => 1,
     builder => '_build_schema_table_object',
 );
-
-requires qw/as_hashref_keys as_sql update_dbix_schema/;
-
-# table first, then name, then the rest sorted alpha.
-my $key_sorter = sub {
-    return [
-        sort {
-            return -1 if $a eq 'table';
-            return 1 if $b eq 'table';
-
-            return -1 if $a eq 'name';
-            return 1 if $b eq 'name';
-
-            return $a cmp $b;
-        } keys %{$_[0]}
-    ]
-};
-
-sub as_perl {
-    my ($self) = @_;
-
-    my $args_dump = Data::Dumper->new([$self->as_hashref])->Terse(1)->Indent(2)->Quotekeys(0)->Sortkeys($key_sorter)->Dump;
-    $args_dump    =~ s/^{|}\s*$//g;
-
-    my $class = $self->meta->name;
-
-    return sprintf("%s->new(%s)", $class, $args_dump);
-}
-
-sub as_hashref {
-    my ($self) = @_;
-
-    return {
-        map { $_ => $self->$_ } $self->as_hashref_keys
-    }
-}
 
 
 sub add_dbix_sqlt_callback {
@@ -101,5 +68,13 @@ sub _build_producer {
     return  Monorail::SQLTrans::ProducerProxy->new(db_type => $self->db_type);
 }
 
+sub transform_database {
+    my ($self, $schema) = @_;
+
+    foreach my $statement ($self->as_sql) {
+        $schema->storage->dbh->do($statement);
+    }
+}
+
+
 1;
-__END__

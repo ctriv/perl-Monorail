@@ -3,7 +3,7 @@ package Monorail::Change::AlterField;
 use Moose;
 use SQL::Translator::Schema::Field;
 
-with 'Monorail::Change';
+with 'Monorail::Role::Change::StandardSQL';
 
 =head1 SYNOPSIS
 
@@ -81,7 +81,7 @@ sub as_sql {
     );
 }
 
-sub update_dbix_schema {
+sub transform_model {
     my ($self, $dbix) = @_;
 
     return unless $self->has_changes;
