@@ -60,6 +60,14 @@ sub has_changes {
         return 1;
     }
 
+    if ($self->from->{is_primary_key} != $self->to->{is_primary_key}) {
+        return 1;
+    }
+
+    if ($self->from->{is_unique} != $self->to->{is_unique}) {
+        return 1;
+    }
+
     my $old_default = defined $self->from->{default_value} ? $self->from->{default_value} : '_MAGIC_MONORAIL_NULL_STRING';
     my $new_default = defined $self->to->{default_value}   ? $self->to->{default_value}   : '_MAGIC_MONORAIL_NULL_STRING';
 
@@ -89,12 +97,12 @@ sub transform_model {
     # This is going to need to be tweak, right now we're not tracking the
     # model's name in dbix... which means while this will work for the style
     # that we have at work - it won't work for all (or even most) dbix setups
-    $dbix->source($self->table)->remove_column($self->name);
+    $dbix->source($self->table)->remove_column($self->from->{name});
     $dbix->source($self->table)->add_column(
-        $self->name => {
-            data_type     => $self->type,
-            is_nullable   => $self->is_nullable,
-            default_value => $self->default_value()
+        $self->to->{name} => {
+            data_type     => $self->to->{type},
+            is_nullable   => $self->to->{is_nullable},
+            default_value => $self->to->{default_value},
         }
     );
 }

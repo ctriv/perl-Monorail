@@ -23,7 +23,7 @@ my $key_sorter = sub {
 sub as_perl {
     my ($self) = @_;
 
-    my $args_dump = Data::Dumper->new([$self->as_hashref])->Terse(1)->Indent(2)->Quotekeys(0)->Sortkeys($key_sorter)->Dump;
+    my $args_dump = Data::Dumper->new([$self->as_hashref])->Deparse(1)->Terse(1)->Indent(2)->Quotekeys(0)->Sortkeys($key_sorter)->Dump;
     $args_dump    =~ s/^{|}\s*$//g;
 
     my $class = $self->meta->name;
