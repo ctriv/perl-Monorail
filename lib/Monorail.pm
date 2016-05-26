@@ -214,7 +214,7 @@ sub _schema_from_current_migrations {
         my $changes = $migration->upgrade_steps;
 
         foreach my $change (@$changes) {
-            $change->update_dbix_schema($proto_schema)
+            $change->transform_model($proto_schema)
         }
     }
 
