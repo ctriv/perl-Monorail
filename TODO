@@ -5,3 +5,6 @@ Finish tests.
 Finish POD.
 
 Autodetect db type.
+
+We're calling the DBIx::Class bits dbix, schema and model in different places,
+pick one.
