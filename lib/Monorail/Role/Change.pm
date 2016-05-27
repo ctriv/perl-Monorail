@@ -34,9 +34,17 @@ sub as_perl {
 sub as_hashref {
     my ($self) = @_;
 
-    return {
-        map { $_ => $self->$_ } $self->as_hashref_keys
+    my %hash;
+    foreach my $key ($self->as_hashref_keys) {
+        my $val = $self->$key;
+
+        if (!defined $val && !$self->meta->find_attribute_by_name($key)->is_required) {
+            next;
+        }
+        $hash{$key} = $val;
     }
+
+    return \%hash;
 }
 
 

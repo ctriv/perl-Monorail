@@ -3,7 +3,7 @@ package Monorail::Change::CreateIndex;
 use Moose;
 use SQL::Translator::Schema::Index;
 
-with 'Monorail::Role::Change';
+with 'Monorail::Role::Change::StandardSQL';
 
 =head1 SYNOPSIS
 

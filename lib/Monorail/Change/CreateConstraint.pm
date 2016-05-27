@@ -1,4 +1,4 @@
-package Monorail::Change::CreateConstrant;
+package Monorail::Change::CreateConstraint;
 
 use Moose;
 use SQL::Translator::Schema::Constraint;
