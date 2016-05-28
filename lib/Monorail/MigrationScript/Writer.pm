@@ -125,7 +125,7 @@ __DATA__
 
 use Moose;
 
-with 'Monorail::Migration';
+with 'Monorail::Role::Migration';
 
 __PACKAGE__->meta->make_immutable;
 

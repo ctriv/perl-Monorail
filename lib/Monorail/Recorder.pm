@@ -86,7 +86,7 @@ sub _ensure_our_table {
 
     return if $self->_table_is_present;
 
-    my $has_table = eval { $self->version_resultset->is_installed; 1 };
+    my $has_table = eval { $self->version_resultset->first; 1 };
 
     if (!$has_table) {
         $self->protoschema->deploy;

@@ -22,7 +22,7 @@ sub produce {
         foreach my $constraint ($table->get_constraints) {
             # not sure this is right, but having fields as primary or unique
             # seems to DTRT
-            next unless $constraint->type eq 'FOREIGN KEY';
+            next if $constraint->type eq 'PRIMARY KEY';
 
             push(@changes, alter_create_constraint($constraint));
         }
@@ -30,6 +30,7 @@ sub produce {
         foreach my $index ($table->get_indices) {
             push(@changes, alter_create_index($index));
         }
+
     }
 
     return @changes;

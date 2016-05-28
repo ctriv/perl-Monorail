@@ -14,7 +14,7 @@ has filename => (
 
 has inner_obj => (
     is      => 'ro',
-    does    => 'Monorail::Migration',
+    does    => 'Monorail::Role::Migration',
     lazy    => 1,
     builder => '_build_inner_obj',
     handles => [qw/upgrade downgrade dependencies upgrade_steps/],

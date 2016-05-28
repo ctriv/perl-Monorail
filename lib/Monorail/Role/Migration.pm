@@ -1,4 +1,4 @@
-package Monorail::Migration;
+package Monorail::Role::Migration;
 
 use Moose::Role;
 use Module::Find;
@@ -43,7 +43,7 @@ sub downgrade {
 
         $change->transform_database($schema)
     }
-    
+
     $txn_guard->commit;
 }
 

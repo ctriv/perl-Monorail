@@ -210,7 +210,7 @@ sub _schema_from_current_migrations {
     my $proto_schema = $self->protoschema;
 
     foreach my $migration ($self->all_migrations->in_topological_order) {
-        warn sprintf("Applying %s to the protoschema...\n", $migration->name);
+        #warn sprintf("Applying %s to the protoschema...\n", $migration->name);
         my $changes = $migration->upgrade_steps;
 
         foreach my $change (@$changes) {
