@@ -41,6 +41,19 @@ has dependencies => (
     required => 1,
 );
 
+has filename => (
+    is      => 'ro',
+    isa     => 'Str',
+    lazy    => 1,
+    builder => '_build_filename'
+);
+
+has out_filehandle => (
+    is      => 'ro',
+    isa     => 'FileHandle',
+    lazy    => 1,
+    builder => '_build_out_filehandle',
+);
 
 __PACKAGE__->meta->make_immutable;
 
@@ -80,15 +93,31 @@ sub write_file {
         down_steps => [map { encoded_string($_) } @downgrade_changes],
     });
 
-    my $filename = sprintf("%s/%s.pl", $self->basedir, $self->name);
+    my $filename = $self->filename;
+    my $fh       = $self->out_filehandle;
 
-    make_path($self->basedir);
-
-    open(my $fh, '>', $filename) || die "Couldn't open $filename: $!\n";
     print $fh $perl;
     close($fh) || die "Couldn't close $filename: $!\n";
 
     return 1;
+}
+
+sub _build_filename {
+    my ($self) = @_;
+
+    return sprintf("%s/%s.pl", $self->basedir, $self->name);
+}
+
+sub _build_out_filehandle {
+    my ($self) = @_;
+
+    my $filename = $self->filename;
+
+    make_path($self->basedir);
+
+    open(my $fh, '>', $filename) || die "Couldn't open $filename: $!\n";
+
+    return $fh;
 }
 
 sub _build_reversed_diff {
