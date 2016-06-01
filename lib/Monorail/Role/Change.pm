@@ -3,6 +3,11 @@ package Monorail::Role::Change;
 use Moose::Role;
 use Data::Dumper ();
 
+has db_type => (
+    is  => 'rw',
+    isa => 'Str',
+);
+
 requires qw/as_hashref_keys transform_database transform_model/;
 
 # table first, then name, then the rest sorted alpha.

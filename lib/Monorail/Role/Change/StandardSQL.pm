@@ -14,11 +14,6 @@ has producer => (
     builder  => '_build_producer',
 );
 
-has db_type => (
-    is  => 'rw',
-    isa => 'Str',
-);
-
 # might break this into its own role that requires 'table'
 has schema_table_object => (
     is      => 'ro',

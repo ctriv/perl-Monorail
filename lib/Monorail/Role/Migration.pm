@@ -5,7 +5,7 @@ use Module::Find;
 
 usesub Monorail::Change;
 
-requires qw/dependencies upgrade_steps upgrade_extras downgrade_steps downgrade_extras/;
+requires qw/dependencies upgrade_steps downgrade_steps/;
 
 has dbix     => (
     is       => 'ro',
