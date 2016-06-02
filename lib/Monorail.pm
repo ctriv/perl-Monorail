@@ -148,6 +148,19 @@ has all_migrations => (
     builder  => '_build_set_of_all_migrations',
 );
 
+=head2 quiet
+
+A boolean flag.  When true this module will print no informative messages to
+C<STDOUT>.  Defaults to false.
+
+=cut
+
+has quiet => (
+    is      => 'ro',
+    isa     => 'Bool',
+    default => 0,
+);
+
 with 'Monorail::Role::ProtoSchema';
 
 
@@ -192,10 +205,10 @@ sub make_migration {
     );
 
     if ($script->write_file()) {
-        print "Created $name.\n";
+        $self->_out("Created $name.\n");
     }
     else {
-        print "No changes detected.\n";
+        $self->_out("No changes detected.\n");
     }
 
     return 1;
@@ -274,11 +287,11 @@ sub migrate {
     foreach my $migration ($self->all_migrations->in_topological_order) {
         next if $self->recorder->is_applied($migration->name);
 
-        print "Applying " . $migration->name . "... ";
+        $self->_out("Applying %s...", $migration->name);
 
         $migration->upgrade($self->db_type);
 
-        print "done.\n";
+        $self->_out("done.\n");
 
         $self->recorder->mark_as_applied($migration->name);
     }
@@ -299,6 +312,15 @@ sub _build_set_of_all_migrations {
     require Monorail::MigrationScript::Set;
 
     return Monorail::MigrationScript::Set->new(basedir => $self->basedir, dbix => $self->dbix);
+}
+
+
+sub _out {
+    my ($self, $fmt, @args) = @_;
+
+    return if $self->quiet;
+
+    printf $fmt, @args;
 }
 
 =head1 THANKS

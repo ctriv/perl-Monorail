@@ -20,6 +20,7 @@ describe 'A monorail object' => sub {
         $sut = Monorail->new(
             dbix    => $schema,
             basedir => dir($FindBin::Bin, qw/test-data valid-migrations/)->stringify,
+            quiet   => 1,
         );
     };
 
