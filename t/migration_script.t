@@ -18,7 +18,7 @@ describe 'A monorail migrationscript object' => sub {
     describe 'representing a valid migration' => sub {
         before each => sub {
             $sut = Monorail::MigrationScript->new(
-                filename => file($FindBin::Bin, 'test-migrations', '0002_auto.pl')->stringify,
+                filename => file($FindBin::Bin, qw/test-data valid-migrations 0002_auto.pl/)->stringify,
                 dbix     => $schema,
             );
         };
@@ -49,7 +49,7 @@ describe 'A monorail migrationscript object' => sub {
     describe 'representing a bad migration' => sub {
         it 'dies when the file is not valid perl' => sub {
             $sut = Monorail::MigrationScript->new(
-                filename => file($FindBin::Bin, 'invalid-migrations', 'syntax.pl')->stringify,
+                filename => file($FindBin::Bin, qw/test-data invalid-migrations syntax.pl/)->stringify,
                 dbix     => $schema
             );
 
@@ -61,7 +61,7 @@ describe 'A monorail migrationscript object' => sub {
 
         it 'dies when the migration class does not has a new method' => sub {
             $sut = Monorail::MigrationScript->new(
-                filename => file($FindBin::Bin, 'invalid-migrations', 'empty.pl')->stringify,
+                filename => file($FindBin::Bin, qw/test-data invalid-migrations empty.pl/)->stringify,
                 dbix     => $schema
             );
 
@@ -73,7 +73,7 @@ describe 'A monorail migrationscript object' => sub {
 
         it 'dies when the migration class does not consume the migration role' => sub {
             $sut = Monorail::MigrationScript->new(
-                filename => file($FindBin::Bin, 'invalid-migrations', 'no_role.pl')->stringify,
+                filename => file($FindBin::Bin, qw/test-data invalid-migrations no_role.pl/)->stringify,
                 dbix     => $schema
             );
 

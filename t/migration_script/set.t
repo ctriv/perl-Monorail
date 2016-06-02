@@ -11,7 +11,7 @@ describe 'A monorail migrationscript set' => sub {
     my ($sut, $schema);
     before each => sub {
         $sut    = Monorail::MigrationScript::Set->new(
-            basedir => dir($FindBin::Bin, '..', 'test-migrations')->stringify,
+            basedir => dir($FindBin::Bin, '..', 'test-data', 'valid-migrations')->stringify,
             dbix    => DBIx::Class::Schema->connect(sub { DBI->connect('dbi:SQLite:dbname=:memory:') })
         )
     };
