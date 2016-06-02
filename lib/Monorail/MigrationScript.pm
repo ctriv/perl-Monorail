@@ -57,8 +57,9 @@ sub _build_inner_obj {
     my $anon_class = Moose::Meta::Class->create_anon_class();
     my $classname  = $anon_class->name;
 
-    my $perl = read_text($self->filename);
-    $perl = "package $classname;\n$perl";
+    my $filename = $self->filename;
+    my $perl     = read_text($filename);
+    $perl = "#line 0 $filename\npackage $classname;\n$perl";
 
     #warn "eval { $perl }\n";
     eval "$perl";
