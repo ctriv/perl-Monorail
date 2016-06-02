@@ -1,14 +1,19 @@
 #!perl
 
 use Test::Spec;
+use Test::Deep;
+
 use Monorail;
 use Path::Class;
 use FindBin;
+use lib "$FindBin::Bin/test-data/dbix-schema";
+use My::Schema;
 
 describe 'A monorail object' => sub {
     my ($sut);
+
     before each => sub {
-        my $schema = DBIx::Class::Schema->connect(sub {
+        my $schema = My::Schema->connect(sub {
             DBI->connect('dbi:SQLite:dbname=:memory:', undef, undef, { RaiseError => 1 })
         });
 
@@ -39,16 +44,52 @@ describe 'A monorail object' => sub {
     };
 
     describe 'the make_migration method' => sub {
-        my $write_file_call;
-        before each => sub {
-            $write_file_call = Monorail::MigrationScript::Writer->expects('write_file')
+        it 'makes a writer with the right name, basedir and depends' => sub {
+            Monorail::MigrationScript::Writer->expects('new')->returns(sub {
+                my ($class, %args) = @_;
+
+                cmp_deeply(\%args, {
+                    name => '0003_auto',
+                    basedir => $sut->basedir,
+                    diff    => ignore(),
+                    dependencies => [qw/0002_auto/]
+                });
+
+                return stub(write_file => 1);
+            });
+
+            $sut->make_migration();
         };
 
         it 'calls write_file on the script writer' => sub {
+            my $write_file_call = Monorail::MigrationScript::Writer->expects('write_file')->returns(1);
             $sut->make_migration;
             ok($write_file_call->verify);
-        }
-    }
+        };
+
+        it 'builds a writer with the needed upwards change' => sub {
+            Monorail::MigrationScript::Writer->expects('write_file')->returns(sub {
+                my ($self)  = @_;
+                my @changes = map { eval $_ } @{$self->upgrade_changes};
+
+                cmp_deeply(\@changes, [
+                    all(
+                        isa('Monorail::Change::AddField'),
+                        methods(
+                            table => 'album',
+                            name  => 'engineer',
+                        ),
+                    )
+                ]);
+
+                return 1;
+            });
+
+            $sut->make_migration;
+        };
+
+
+    };
 
  };
 
