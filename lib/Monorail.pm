@@ -21,7 +21,7 @@ Monorail - Database Migrations
 =head1 DESCRIPTION
 
 This module attempts to provide a simplier and more robust way to manage
-database migrations with L<DBI::Class>.  This library borrows (steals!) ideas
+database migrations with L<DBIx::Class>.  This library borrows (steals!) ideas
 heavily from L<django's migrations|https://docs.djangoproject.com/en/1.9/topics/migrations/>.
 
 The main goals of this library are to free the programmer from keeping track
