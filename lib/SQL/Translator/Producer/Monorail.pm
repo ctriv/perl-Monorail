@@ -49,6 +49,7 @@ sub create_table {
             is_primary_key => $fld->is_primary_key,
             is_unique      => $fld->is_unique,
             default_value  => $fld->default_value,
+            size           => [$fld->size],
         });
     }
 
@@ -122,6 +123,7 @@ sub add_field {
         is_primary_key => $fld->is_primary_key,
         is_unique      => $fld->is_unique,
         default_value  => $fld->default_value,
+        size           => [$fld->size],
     )->as_perl;
 }
 
@@ -142,6 +144,7 @@ sub alter_field {
             is_primary_key => $from->is_primary_key,
             is_unique      => $from->is_unique,
             default_value  => $from->default_value,
+            size           => [$from->size],
         },
         to => {
             name           => $to->name,
@@ -150,6 +153,7 @@ sub alter_field {
             is_primary_key => $to->is_primary_key,
             is_unique      => $to->is_unique,
             default_value  => $to->default_value,
+            size           => [$to->size],
         }
     );
 

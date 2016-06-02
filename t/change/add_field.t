@@ -68,7 +68,8 @@ describe 'An add field change' => sub {
         cmp_deeply($col, {
             default_value => undef,
             data_type     => re(qr/text/i),
-            is_nullable   => 1
+            is_nullable   => 1,
+            size          => undef,
         });
     }
 };

@@ -26,13 +26,14 @@ with 'Monorail::Role::Change::StandardSQL';
 =cut
 
 
-has table          => (is => 'ro', isa => 'Str',  required => 1);
-has name           => (is => 'ro', isa => 'Str',  required => 1);
-has type           => (is => 'ro', isa => 'Str',  required => 1);
-has is_nullable    => (is => 'ro', isa => 'Bool', required => 1, default => 1);
-has is_primary_key => (is => 'ro', isa => 'Bool', required => 1, default => 0);
-has is_unique      => (is => 'ro', isa => 'Bool', required => 1, default => 0);
-has default_value  => (is => 'ro', isa => 'Any',  required => 0);
+has table          => (is => 'ro', isa => 'Str',      required => 1);
+has name           => (is => 'ro', isa => 'Str',      required => 1);
+has type           => (is => 'ro', isa => 'Str',      required => 1);
+has is_nullable    => (is => 'ro', isa => 'Bool',     required => 1, default => 1);
+has is_primary_key => (is => 'ro', isa => 'Bool',     required => 1, default => 0);
+has is_unique      => (is => 'ro', isa => 'Bool',     required => 1, default => 0);
+has default_value  => (is => 'ro', isa => 'Any',      required => 0);
+has size           => (is => 'ro', isa => 'ArrayRef', required => 0);
 
 __PACKAGE__->meta->make_immutable;
 
@@ -58,6 +59,7 @@ sub as_sql_translator_field {
         is_primary_key => $self->is_primary_key,
         is_unique      => $self->is_unique,
         default_value  => $self->default_value,
+        size           => $self->size,
     );
 }
 
@@ -71,13 +73,14 @@ sub transform_model {
         $self->name => {
             data_type     => $self->type,
             is_nullable   => $self->is_nullable,
-            default_value => $self->default_value()
+            default_value => $self->default_value,
+            size          => $self->size,
         }
     );
 }
 
 sub as_hashref_keys {
-    return qw/name table is_nullable type is_primary_key is_nullable is_unique default_value/;
+    return qw/name table is_nullable type is_primary_key is_nullable is_unique default_value size/;
 }
 
 1;

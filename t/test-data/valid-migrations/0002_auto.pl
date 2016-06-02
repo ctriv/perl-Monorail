@@ -19,7 +19,10 @@ sub upgrade_steps {
           is_nullable => 1,
           is_primary_key => 0,
           is_unique => 0,
-          type => 'text'
+          type => 'text',
+          size => [
+                256
+          ],
         ),
         # Monorail::Change::RunPerl->new(function => \&upgrade_extras),
     ];

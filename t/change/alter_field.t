@@ -21,6 +21,7 @@ describe 'An alter field change' => sub {
                 is_primary_key => 0,
                 is_unique      => 0,
                 default_value  => undef,
+                size           => 10,
             },
             to  => {
                 name           => 'description',
@@ -29,6 +30,7 @@ describe 'An alter field change' => sub {
                 is_primary_key => 0,
                 is_unique      => 0,
                 default_value  => undef,
+                size           => 10,
             },
         );
         $sut = Monorail::Change::AlterField->new(%sut_args);
@@ -91,6 +93,7 @@ describe 'An alter field change' => sub {
                     is_primary_key => 0,
                     is_unique      => 0,
                     default_value  => undef,
+                    size           => [10],
                 },
                 to  => {
                     name           => 'description',
@@ -99,6 +102,7 @@ describe 'An alter field change' => sub {
                     is_primary_key => 0,
                     is_unique      => 0,
                     default_value  => undef,
+                    size           => [10],
                 },
             );
             $sut = Monorail::Change::AlterField->new(%sut_args);
@@ -125,6 +129,10 @@ describe 'An alter field change' => sub {
         };
         it 'is true when the is_unique attribute changes' => sub {
             $sut->to->{is_unique} = 1;
+            ok($sut->has_changes);
+        };
+        it 'is true when the size attribute changes' => sub {
+            $sut->to->{size} = [20];
             ok($sut->has_changes);
         };
     };

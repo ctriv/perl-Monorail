@@ -21,6 +21,7 @@ describe 'An create table change' => sub {
                     is_primary_key => 1,
                     is_unique      => 0,
                     default_value  => undef,
+                    size           => [16],
                 },
             ],
         );
@@ -55,7 +56,8 @@ describe 'An create table change' => sub {
         cmp_deeply($col, superhashof({
             default_value => undef,
             data_type     => re(qr/integer/i),
-            is_nullable   => 0
+            is_nullable   => 0,
+            size          => 16,
         }));
     }
 };

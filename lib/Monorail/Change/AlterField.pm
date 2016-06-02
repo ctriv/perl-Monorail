@@ -2,6 +2,7 @@ package Monorail::Change::AlterField;
 
 use Moose;
 use SQL::Translator::Schema::Field;
+use List::Compare;
 
 with 'Monorail::Role::Change::StandardSQL';
 
@@ -16,6 +17,7 @@ with 'Monorail::Role::Change::StandardSQL';
             is_primary_key => $from->is_primary_key,
             is_unique      => $from->is_unique,
             default_value  => $from->default_value,
+            size           => $from->size,
         },
         to => {
             name           => $to->name,
@@ -23,7 +25,8 @@ with 'Monorail::Role::Change::StandardSQL';
             is_nullable    => $to->is_nullable,
             is_primary_key => $to->is_primary_key,
             is_unique      => $to->is_unique,
-            default_value  => $to->{default_value},
+            default_value  => $to->default_value,
+            size           => $to->size,
         }
     );
 
@@ -68,6 +71,10 @@ sub has_changes {
         return 1;
     }
 
+    if (List::Compare->new($self->from->{size}, $self->to->{size})->get_symmetric_difference) {
+        return 1;
+    }
+
     my $old_default = defined $self->from->{default_value} ? $self->from->{default_value} : '_MAGIC_MONORAIL_NULL_STRING';
     my $new_default = defined $self->to->{default_value}   ? $self->to->{default_value}   : '_MAGIC_MONORAIL_NULL_STRING';
 
@@ -103,6 +110,7 @@ sub transform_model {
             data_type     => $self->to->{type},
             is_nullable   => $self->to->{is_nullable},
             default_value => $self->to->{default_value},
+            size          => $self->to->{size},
         }
     );
 }

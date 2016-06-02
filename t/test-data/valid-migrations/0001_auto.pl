@@ -22,7 +22,10 @@ sub upgrade_steps {
                         is_nullable => 0,
                         is_primary_key => 1,
                         is_unique => 0,
-                        type => 'bigserial'
+                        type => 'bigserial',
+                        size => [
+                                  16
+                                ],
                       },
                       {
                         name => 'artist',
@@ -30,7 +33,10 @@ sub upgrade_steps {
                         is_nullable => 0,
                         is_primary_key => 0,
                         is_unique => 0,
-                        type => 'integer'
+                        type => 'integer',
+                        size => [
+                                  16
+                                ],
                       },
                       {
                         name => 'title',
@@ -38,7 +44,10 @@ sub upgrade_steps {
                         is_nullable => 0,
                         is_primary_key => 0,
                         is_unique => 0,
-                        type => 'varchar'
+                        type => 'varchar',
+                        size => [
+                                  256
+                                ],
                       },
                       {
                         name => 'rank',
@@ -46,7 +55,10 @@ sub upgrade_steps {
                         is_nullable => 0,
                         is_primary_key => 0,
                         is_unique => 0,
-                        type => 'integer'
+                        type => 'integer',
+                        size => [
+                                  16
+                                ],
                       },
                       {
                         name => 'isbn',
@@ -54,7 +66,10 @@ sub upgrade_steps {
                         is_nullable => 1,
                         is_primary_key => 0,
                         is_unique => 0,
-                        type => 'text'
+                        type => 'text',
+                        size => [
+                                  256
+                                  ],
                       },
                       {
                         name => 'release_year',
@@ -62,7 +77,10 @@ sub upgrade_steps {
                         is_nullable => 1,
                         is_primary_key => 0,
                         is_unique => 0,
-                        type => 'integer'
+                        type => 'integer',
+                        size => [
+                                  16
+                                ],
                       }
                     ]
         ),
