@@ -14,3 +14,9 @@ Figureout the bootstrapping system.  Users need a script and a way to add monora
 Refactor the StandardSQL change role to get as_sql into the role, define producer method name and as_sql_trans_obj() in the class.
 
 Fix autogened subs to have names.
+
+Rename operations.
+
+Views.
+
+Trigger.
