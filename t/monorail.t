@@ -61,6 +61,20 @@ describe 'A monorail object' => sub {
             $sut->make_migration();
         };
 
+        it 'passes a given name along to the writer' => sub {
+            Monorail::MigrationScript::Writer->expects('new')->returns(sub {
+                my ($class, %args) = @_;
+
+                cmp_deeply(\%args, superhashof{
+                    name => 'epcot',
+                });
+
+                return stub(write_file => 1);
+            });
+
+            $sut->make_migration('epcot');
+        };
+
         it 'calls write_file on the script writer' => sub {
             my $write_file_call = Monorail::MigrationScript::Writer->expects('write_file')->returns(1);
             $sut->make_migration;
@@ -87,8 +101,6 @@ describe 'A monorail object' => sub {
 
             $sut->make_migration;
         };
-
-
     };
 
  };
