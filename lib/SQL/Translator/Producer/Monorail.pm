@@ -62,6 +62,8 @@ sub create_table {
 sub alter_create_constraint {
     my ($con, $args) = @_;
 
+    my $ref_fields = scalar($con->reference_fields) || [];
+
     return Monorail::Change::CreateConstraint->new(
         table            => $con->table->name,
         type             => lc $con->type,
@@ -72,7 +74,7 @@ sub alter_create_constraint {
         match_type       => $con->match_type,
         deferrable       => $con->deferrable,
         reference_table  => $con->reference_table,
-        reference_fields => scalar $con->reference_fields,
+        reference_fields => $ref_fields,
     )->as_perl;
 }
 
@@ -86,7 +88,6 @@ sub alter_drop_constraint {
         name        => $con->name,
         field_names => scalar $con->field_names,
     )->as_perl;
-
 }
 
 
