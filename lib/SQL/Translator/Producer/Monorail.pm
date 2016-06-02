@@ -42,7 +42,6 @@ sub create_table {
     my @fields;
     foreach my $fld ($table->get_fields) {
         push(@fields, {
-        #    table          => $fld->table->name,
             name           => $fld->name,
             type           => $fld->data_type,
             is_nullable    => $fld->is_nullable,
