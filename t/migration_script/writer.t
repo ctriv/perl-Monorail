@@ -46,6 +46,29 @@ describe "A monorail migration script writer" => sub {
         };
     };
 
+    describe 'upgrade_changes method' => sub {
+        it 'returns a list of perl strings representing the changes' => sub {
+            cmp_deeply($sut->upgrade_changes, [
+                all(
+                    re(qr/Monorail::Change::CreateTable/),
+                    re(qr/name => ['"]epcot['"]/s)
+                )
+            ]);
+        };
+    };
+
+
+    describe 'downgrade_changes method' => sub {
+        it 'returns a list of perl strings representing the changes' => sub {
+            cmp_deeply($sut->downgrade_changes, [
+                all(
+                    re(qr/Monorail::Change::DropTable/),
+                    re(qr/name => ['"]epcot['"]/s)
+                )
+            ]);
+        };
+    };
+
     describe 'write file method' => sub {
         my $eval_error;
         # before all because we don't want to compile in the same namespace over

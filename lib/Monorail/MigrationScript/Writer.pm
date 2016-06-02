@@ -55,6 +55,21 @@ has out_filehandle => (
     builder => '_build_out_filehandle',
 );
 
+has upgrade_changes => (
+    is      => 'ro',
+    isa     => 'ArrayRef',
+    lazy    => 1,
+    builder => '_build_upgrade_changes',
+);
+
+has downgrade_changes => (
+    is      => 'ro',
+    isa     => 'ArrayRef',
+    lazy    => 1,
+    builder => '_build_downgrade_changes',
+);
+
+
 __PACKAGE__->meta->make_immutable;
 
 =head1 SYNOPSIS
@@ -74,23 +89,18 @@ __PACKAGE__->meta->make_immutable;
 sub write_file {
     my ($self) = @_;
 
-    my $dependencies      = join('  ', @{$self->dependencies});
-    my @upgrade_changes   = $self->diff->produce_diff_sql;
+    my $dependencies    = join('  ', @{$self->dependencies});
+    my $upgrade_changes = $self->upgrade_changes;
 
-    # use Data::Dumper;
-    # warn Dumper($self->reversed_diff);
+    return 0 unless @$upgrade_changes;
 
-    my @downgrade_changes = $self->reversed_diff->produce_diff_sql;
 
-    @upgrade_changes   = $self->_munge_diff(@upgrade_changes);
-    @downgrade_changes = $self->_munge_diff(@downgrade_changes);
-
-    return 0 unless @upgrade_changes;
+    my $downgrade_changes = $self->downgrade_changes;
 
     my $perl = render_mt('migration_script', {
         depends    => encoded_string($dependencies),
-        up_steps   => [map { encoded_string($_) } @upgrade_changes],
-        down_steps => [map { encoded_string($_) } @downgrade_changes],
+        up_steps   => [map { encoded_string($_) } @$upgrade_changes],
+        down_steps => [map { encoded_string($_) } @$downgrade_changes],
     });
 
     my $filename = $self->filename;
@@ -101,6 +111,26 @@ sub write_file {
 
     return 1;
 }
+
+sub _build_upgrade_changes {
+    my ($self) = @_;
+
+    my @changes = $self->diff->produce_diff_sql;
+    @changes    = $self->_munge_changes_strings(@changes);
+
+    return \@changes;
+}
+
+sub _build_downgrade_changes {
+    my ($self) = @_;
+
+    my @changes = $self->reversed_diff->produce_diff_sql;
+    @changes    = $self->_munge_changes_strings(@changes);
+
+    return \@changes;
+}
+
+
 
 sub _build_filename {
     my ($self) = @_;
@@ -133,16 +163,16 @@ sub _build_reversed_diff {
     })->compute_differences;
 }
 
-sub _munge_diff {
-    my ($self, @diff) = @_;
+sub _munge_changes_strings {
+    my ($self, @changes) = @_;
 
-    @diff = grep { m/^Monorail::/ } @diff;
-    for (@diff) {
+    @changes = grep { m/^Monorail::/ } @changes;
+    for (@changes) {
         s/;\s+$//s;
         s/^/        /mg;
     }
 
-    return @diff;
+    return @changes;
 }
 
 1;
