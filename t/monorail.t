@@ -103,6 +103,40 @@ describe 'A monorail object' => sub {
         };
     };
 
+    # we're going to do a little bit of integration testing here.
+    describe 'the migrate method' => sub {
+        it 'sets up the schema in the database' => sub {
+            $sut->migrate;
+
+            my $dbh = $sut->dbix->storage->dbh;
+            my @sql = grep { defined } @{$dbh->selectcol_arrayref('select sql from sqlite_master')};
+
+            cmp_deeply(\@sql, superbagof(
+                re(qr/create table monorail_deployed_migrations/i),
+                re(qr/create table album/i),
+            ));
+        };
+
+        it 'marks the migraions as applied' => sub {
+            $sut->migrate;
+
+            my $dbh = $sut->dbix->storage->dbh;
+
+            my $applied = $dbh->selectcol_arrayref('select name from monorail_deployed_migrations');
+
+            cmp_deeply($applied, bag(qw/0001_auto 0002_auto/))
+        };
+
+        it 'does nothing the second time it is called in the same state' => sub {
+            $sut->migrate;
+
+            my $not_applied = Monorail::Recorder->expects('mark_as_applied')->never;
+
+            $sut->migrate;
+
+            ok($not_applied->verify);
+        };
+    };
  };
 
 
