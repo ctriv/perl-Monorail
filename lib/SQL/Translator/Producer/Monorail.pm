@@ -20,8 +20,6 @@ sub produce {
         push(@changes, create_table($table));
 
         foreach my $constraint ($table->get_constraints) {
-            # not sure this is right, but having fields as primary or unique
-            # seems to DTRT
             next if $constraint->type eq 'PRIMARY KEY';
 
             push(@changes, alter_create_constraint($constraint));

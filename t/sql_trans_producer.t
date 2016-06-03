@@ -180,9 +180,174 @@ describe 'The monorail sql translator producer' => sub {
         };
     };
 
-    describe 'the produce method' => sub {
+    describe 'the alter_field method' => sub {
+        it 'should return a perl string for a AlterField change' => sub {
+            my $table = SQL::Translator::Schema::Table->new(
+                name => 'epcot'
+            );
 
-    }
+            my $from = SQL::Translator::Schema::Field->new(
+                table          => $table,
+                name           => 'ride',
+                data_type      => 'text',
+                is_nullable    => 0,
+                is_primary_key => 1,
+                is_unique      => 0,
+                default_value  => undef,
+                size           => [256],
+            );
+
+            my $to = SQL::Translator::Schema::Field->new(
+                table          => $table,
+                name           => 'ride',
+                data_type      => 'text',
+                is_nullable    => 0,
+                is_primary_key => 1,
+                is_unique      => 0,
+                default_value  => undef,
+                size           => [512],
+            );
+
+
+            my $perl = SQL::Translator::Producer::Monorail::alter_field($from, $to);
+
+            my $change = eval $perl;
+
+            cmp_deeply($change, all(
+                isa('Monorail::Change::AlterField'),
+                methods(
+                    table       => 'epcot',
+                    has_changes => 1,
+                    from        => superhashof({size => [256]}),
+                    to          => superhashof({size => [512]}),
+                ),
+            ));
+        };
+    };
+
+
+    describe 'the drop_field method' => sub {
+        it 'should return a perl string for a DropField change' => sub {
+            my $table = SQL::Translator::Schema::Table->new(
+                name => 'epcot'
+            );
+
+            my $field = SQL::Translator::Schema::Field->new(
+                table          => $table,
+                name           => 'ride',
+                data_type      => 'text',
+                is_nullable    => 0,
+                is_primary_key => 1,
+                is_unique      => 0,
+                default_value  => undef,
+                size           => [256],
+            );
+
+            my $perl = SQL::Translator::Producer::Monorail::drop_field($field);
+
+            my $change = eval $perl;
+
+            cmp_deeply($change, all(
+                isa('Monorail::Change::DropField'),
+                methods(
+                    table => 'epcot',
+                    name  => 'ride',
+                ),
+            ));
+        };
+    };
+
+    describe 'the drop_table method' => sub {
+        it 'should return a perl string for a DropTable change' => sub {
+            my $table = SQL::Translator::Schema::Table->new(
+                name => 'epcot'
+            );
+
+            my $perl = SQL::Translator::Producer::Monorail::drop_table($table);
+
+            my $change = eval $perl;
+
+            cmp_deeply($change, all(
+                isa('Monorail::Change::DropTable'),
+                methods(
+                    name => 'epcot',
+                ),
+            ));
+        };
+    };
+
+    describe 'the produce method' => sub {
+        it 'should return a perl string that represents the given schema' => sub {
+            my $table = SQL::Translator::Schema::Table->new(
+                name => 'epcot'
+            );
+
+            $table->add_field(
+                name           => 'ride',
+                data_type      => 'text',
+                is_nullable    => 0,
+                is_primary_key => 1,
+                is_unique      => 0,
+                default_value  => undef,
+                size           => [256],
+            );
+
+            $table->add_constraint(
+                name             => 'epcot_uniq_idx',
+                type             => 'UNIQUE',
+                field_names      => [qw/ride/],
+                on_delete        => '',
+                on_update        => '',
+                match_type       => '',
+                deferrable       => 0,
+                reference_table  => '',
+                reference_fields => undef,
+            );
+
+            $table->add_index(
+                name   => 'ride_idx',
+                fields => [qw/ride/],
+                type   => 'NORMAL',
+            );
+
+            my $schema = SQL::Translator::Schema->new();
+            $schema->add_table($table);
+
+            my $trans = stub(schema => $schema);
+
+            my @perl_strings = SQL::Translator::Producer::Monorail::produce($trans);
+            my @changes = map { eval $_ } @perl_strings;
+
+            cmp_deeply(\@changes,
+                [
+                    all(
+                        isa('Monorail::Change::CreateTable'),
+                        methods(
+                            name => 'epcot',
+                            fields => [
+                                superhashof({
+                                    name => 'ride',
+                                    type => 'text'
+                                })
+                            ],
+                        ),
+                    ),
+                    all(
+                        isa('Monorail::Change::CreateConstraint'),
+                        methods(
+                            name => 'epcot_uniq_idx',
+                        ),
+                    ),
+                    all(
+                        isa('Monorail::Change::CreateIndex'),
+                        methods(
+                            name => 'ride_idx',
+                        ),
+                    ),
+                ]
+            );
+        };
+    };
 };
 
 runtests;
