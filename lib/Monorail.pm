@@ -106,20 +106,6 @@ has basedir => (
 );
 
 
-=head2 db_type
-
-The type of database we're updating.  Defaults to C<PostgreSQL> currently, but
-perhaps this should be derived from the dbix object instead?  This needs to be
-a producer type defined by L<SQL::Translator>.
-
-=cut
-
-has db_type => (
-    is      => 'ro',
-    isa     => 'Str',
-    default => 'PostgreSQL',
-);
-
 =head2 recorder
 
 The recorder object is responsible for the table that stores migration states
@@ -162,6 +148,7 @@ has quiet => (
 );
 
 with 'Monorail::Role::ProtoSchema';
+with 'Monorail::Role::DetectDbType';
 
 
 # ABSTRACT: Database migrations for DBIx::Class
