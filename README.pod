@@ -120,7 +120,23 @@ Updates the database that we're connected to the current state of the
 migrations.  Walks the dependency tree in topological order, applying all
 migrations that are not yet applied.
 
+=head2 showmigrations
+
+Prints all the migrations by name in order.  If the migration has been applied
+to the database, it will be marked with C<[X]> in the output.
+
+=head2 showmigrationplan
+
+Prints all the migration that would be applied by C<migrate()>.
+
+=head2 sqlmigrate
+
+Prints a SQL representation of the given migration names.
+
 =head1 THANKS
+
+This word is basically a perl port of django migrations.  Many many thanks in
+that direction.
 
 Anyone that worked on SQL::Translator, that module is a nuclear powered sonic
 swiss army knife of handy.  This module is mostly just sugar on top of it.

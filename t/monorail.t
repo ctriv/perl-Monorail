@@ -138,6 +138,78 @@ describe 'A monorail object' => sub {
             ok($not_applied->verify);
         };
     };
+
+    describe 'the showmigrations method' => sub {
+        my $out;
+
+        before each => sub {
+            $out = '';
+            $sut->expects('_out')->at_least_once->returns(sub {
+                my ($self, $fmt, @args) = @_;
+
+                $out .= sprintf($fmt, @args);
+            });
+        };
+
+        it 'displays none applied when none are' => sub {
+            $sut->showmigrations;
+            like($out, qr/^0001_auto$/sm);
+            like($out, qr/^0002_auto$/sm);
+        };
+
+        it 'displays all applied when all are' => sub {
+            $sut->migrate;
+            $out = '';
+            $sut->showmigrations;
+            like($out, qr/^0001_auto \[X\]$/sm);
+            like($out, qr/^0002_auto \[X\]$/sm);
+        };
+    };
+
+    describe 'the showmigrationplan method' => sub {
+        my $out;
+
+        before each => sub {
+            $out = '';
+            $sut->expects('_out')->at_least_once->returns(sub {
+                my ($self, $fmt, @args) = @_;
+
+                $out .= sprintf($fmt, @args);
+            });
+        };
+
+        it 'displays all when none are applied' => sub {
+            $sut->showmigrationplan;
+            like($out, qr/^0001_auto$/sm);
+            like($out, qr/^0002_auto$/sm);
+        };
+
+        it 'displays none applied when all are' => sub {
+            $sut->migrate;
+            $out = '';
+            $sut->showmigrationplan;
+
+            is($out, '');
+        };
+    };
+
+    describe 'the sqlmigrate method' => sub {
+        my $out;
+
+        before each => sub {
+            $out = '';
+            $sut->expects('_out')->at_least_once->returns(sub {
+                my ($self, $fmt, @args) = @_;
+
+                $out .= sprintf($fmt, @args);
+            });
+        };
+
+        it 'show the sql for the given migration' => sub {
+            $sut->sqlmigrate('0002_auto');
+            like($out, qr/ALTER TABLE album ADD COLUMN producer text/);
+        };
+    };
  };
 
 

@@ -286,6 +286,67 @@ sub migrate {
     $txn_guard->commit;
 }
 
+=head2 showmigrations
+
+Prints all the migrations by name in order.  If the migration has been applied
+to the database, it will be marked with C<[X]> in the output.
+
+=cut
+
+sub showmigrations {
+    my ($self) = @_;
+
+    foreach my $migration ($self->all_migrations->in_topological_order) {
+        if ($self->recorder->is_applied($migration->name)) {
+            $self->_out("%s [X]\n", $migration->name);
+        }
+        else {
+            $self->_out("%s\n", $migration->name);
+        }
+    }
+}
+
+=head2 showmigrationplan
+
+Prints all the migration that would be applied by C<migrate()>.
+
+=cut
+
+sub showmigrationplan {
+    my ($self) = @_;
+
+    foreach my $migration ($self->all_migrations->in_topological_order) {
+        unless ($self->recorder->is_applied($migration->name)) {
+            $self->_out("%s\n", $migration->name);
+        }
+    }
+}
+
+
+=head2 sqlmigrate
+
+Prints a SQL representation of the given migration names.
+
+=cut
+
+sub sqlmigrate {
+    my ($self, @names) = @_;
+
+    foreach my $name (@names) {
+        my $migration = $self->all_migrations->get($name);
+
+        $self->_out("%s\n", $migration->name);
+        foreach my $change (@{$migration->upgrade_steps}) {
+            $change->db_type($self->db_type);
+
+            foreach my $query ($change->as_sql) {
+                $query =~ s/^/\t/mg;
+                $self->_out("$query\n");
+            }
+        }
+    }
+}
+
 sub _build_recorder {
     my ($self) = @_;
 
@@ -311,6 +372,9 @@ sub _out {
 }
 
 =head1 THANKS
+
+This word is basically a perl port of django migrations.  Many many thanks in
+that direction.
 
 Anyone that worked on SQL::Translator, that module is a nuclear powered sonic
 swiss army knife of handy.  This module is mostly just sugar on top of it.

@@ -42,6 +42,12 @@ has graph => (
 
 __PACKAGE__->meta->make_immutable;
 
+sub get {
+    my ($self, $name) = @_;
+
+    return $self->migrations->{$name};
+}
+
 sub in_topological_order {
     my ($self) = @_;
 

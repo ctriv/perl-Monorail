@@ -61,6 +61,19 @@ describe 'A monorail migrationscript set' => sub {
             is($sut->next_auto_name, '0003_auto');
         };
     };
+
+    describe 'the get method' => sub {
+        it 'returns the migration script object that matches the given name' => sub {
+            cmp_deeply($sut->get('0001_auto'), all(
+                isa('Monorail::MigrationScript'),
+                methods(name => '0001_auto'),
+            ));
+        };
+
+        it 'returns undef if the name does not exist in the set' => sub {
+            cmp_deeply($sut->get('no-such-thing'), undef);
+        };
+    };
 };
 
 runtests;

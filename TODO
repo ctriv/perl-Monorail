@@ -3,6 +3,8 @@ Wrap up all the missing changes.
     Views.
     Trigger.
 
+Migration squashing.  (maybe...)
+
 Finish POD.
 
 Figure out the bootstrapping system.  Users need a script and a way to add
