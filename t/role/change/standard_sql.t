@@ -32,7 +32,7 @@ use Test::Deep;
         return qw/name table attr/;
     }
 
-    sub transform_model {
+    sub transform_dbix {
         return;
     }
 
@@ -83,15 +83,15 @@ describe 'The standard sql change role' => sub {
 
     describe 'transform_database method' => sub {
         it 'executes its sql on the given schema object' => sub {
-            my $db_do  = mock();
-            my $schema = stub(storage => stub(dbh => $db_do));
+            my $db_do = mock();
+            my $dbix  = stub(storage => stub(dbh => $db_do));
 
             my @executed_sql;
             $db_do->expects('do')->exactly(2)->returns(sub {
                 push(@executed_sql, $_[1]);
             });
 
-            $sut->transform_database($schema);
+            $sut->transform_database($dbix);
 
             cmp_deeply(\@executed_sql, [$sut->as_sql]);
         }

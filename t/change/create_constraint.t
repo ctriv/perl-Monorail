@@ -37,8 +37,8 @@ describe 'An create constraint change' => sub {
             ));
         };
 
-        it 'manipulates an in-memory schema' => sub {
-            my $schema = DBIx::Class::Schema->connect(sub { DBI->connect('dbi:SQLite:dbname=:memory:') });
+        it 'manipulates an in-memory dbix' => sub {
+            my $dbix      = DBIx::Class::Schema->connect(sub { DBI->connect('dbi:SQLite:dbname=:memory:') });
             my $table_add = Monorail::Change::CreateTable->new(
                 name => 'epcot',
                 fields => [
@@ -54,10 +54,10 @@ describe 'An create constraint change' => sub {
                 db_type => 'SQLite'
             );
 
-            $table_add->transform_model($schema);
-            $sut->transform_model($schema);
+            $table_add->transform_dbix($dbix);
+            $sut->transform_dbix($dbix);
 
-            my %uniqs = $schema->source('epcot')->unique_constraints;
+            my %uniqs = $dbix->source('epcot')->unique_constraints;
             cmp_deeply($uniqs{$sut->name}, $sut->field_names);
         };
     };
@@ -94,8 +94,8 @@ describe 'An create constraint change' => sub {
             ));
         };
 
-        it 'manipulates an in-memory schema' => sub {
-            my $schema = DBIx::Class::Schema->connect(sub { DBI->connect('dbi:SQLite:dbname=:memory:') });
+        it 'manipulates an in-memory dbix' => sub {
+            my $dbix            = DBIx::Class::Schema->connect(sub { DBI->connect('dbi:SQLite:dbname=:memory:') });
             my $track_table_add = Monorail::Change::CreateTable->new(
                 name => 'track',
                 fields => [
@@ -126,13 +126,13 @@ describe 'An create constraint change' => sub {
                 db_type => 'SQLite'
             );
 
-            $track_table_add->transform_model($schema);
+            $track_table_add->transform_dbix($dbix);
 
-            $album_table_add->transform_model($schema);
-            $sut->transform_model($schema);
+            $album_table_add->transform_dbix($dbix);
+            $sut->transform_dbix($dbix);
 
-            my $rel1 = $schema->source('track')->relationship_info('album');
-            my $rel2 = $schema->source('album')->relationship_info('tracks');
+            my $rel1 = $dbix->source('track')->relationship_info('album');
+            my $rel2 = $dbix->source('album')->relationship_info('tracks');
 
             cmp_deeply($rel1, {
                 'attrs' => {

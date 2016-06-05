@@ -8,12 +8,12 @@ use DBIx::Class;
 use Monorail::Recorder;
 
 describe 'A monorail recorder' => sub {
-    my ($schema, $dbh, $sut);
+    my ($dbix, $dbh, $sut);
 
     before each => sub {
         $dbh    = DBI->connect('dbi:SQLite:dbname=:memory:', undef, undef, { RaiseError => 1, PrintError => 0 });
-        $schema = DBIx::Class::Schema->connect(sub { $dbh });
-        $sut    = Monorail::Recorder->new(dbix => $schema);
+        $dbix   = DBIx::Class::Schema->connect(sub { $dbh });
+        $sut    = Monorail::Recorder->new(dbix => $dbix);
     };
 
     it 'makes the migration table if needed' => sub {

@@ -18,7 +18,7 @@ with 'Monorail::Role::Change::StandardSQL';
 
     $add_const->as_sql;
 
-    $add_const->update_dbix_schema($dbix)
+    $add_const->transform_dbix($dbix)
 
 =cut
 
@@ -52,7 +52,7 @@ sub as_sql_translator_constraint {
     );
 }
 
-sub transform_model {
+sub transform_dbix {
     my ($self, $dbix) = @_;
 
     # This is going to need to be tweak, right now we're not tracking the

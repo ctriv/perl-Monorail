@@ -45,9 +45,9 @@ use DBIx::Class::Schema;
 
 
 describe 'The monorail migration role' => sub {
-    my $schema;
+    my $dbix;
     before each => sub {
-        $schema = DBIx::Class::Schema->connect(sub {
+        $dbix = DBIx::Class::Schema->connect(sub {
             DBI->connect('dbi:SQLite:dbname=:memory:', undef, undef, { RaiseError => 1 })
         });
     };
@@ -69,7 +69,7 @@ describe 'The monorail migration role' => sub {
             my $called;
             my $sut = My::Sut->new(
                 upgrade_hook => sub { $called++ },
-                dbix         => $schema,
+                dbix         => $dbix,
             );
 
             $sut->upgrade('SQLite');
@@ -80,7 +80,7 @@ describe 'The monorail migration role' => sub {
         it 'sets the db_type for the change objects' => sub {
             my $sut = My::Sut->new(
                 upgrade_hook => sub {  },
-                dbix         => $schema,
+                dbix         => $dbix,
             );
 
             my $db_type_called = Monorail::Change::RunPerl->expects('db_type')->once->with('SQLite');
@@ -96,7 +96,7 @@ describe 'The monorail migration role' => sub {
             my $called;
             my $sut = My::Sut->new(
                 downgrade_hook => sub { $called++ },
-                dbix           => $schema,
+                dbix           => $dbix,
             );
 
             $sut->downgrade('SQLite');
@@ -107,7 +107,7 @@ describe 'The monorail migration role' => sub {
         it 'sets the db_type for the change objects' => sub {
             my $sut = My::Sut->new(
                 downgrade_hook => sub {  },
-                dbix         => $schema,
+                dbix           => $dbix,
             );
 
             my $db_type_called = Monorail::Change::RunPerl->expects('db_type')->once->with('SQLite');

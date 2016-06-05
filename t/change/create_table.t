@@ -44,14 +44,14 @@ describe 'An create table change' => sub {
         ));
     };
 
-    it 'manipulates an in-memory schema' => sub {
-        my $schema = DBIx::Class::Schema->connect(sub { DBI->connect('dbi:SQLite:dbname=:memory:') });
+    it 'manipulates an in-memory dbix' => sub {
+        my $dbix = DBIx::Class::Schema->connect(sub { DBI->connect('dbi:SQLite:dbname=:memory:') });
 
         $sut->db_type('SQLite');
 
-        $sut->transform_model($schema);
+        $sut->transform_dbix($dbix);
 
-        my $col = $schema->source('epcot')->column_info('id');
+        my $col = $dbix->source('epcot')->column_info('id');
 
         cmp_deeply($col, superhashof({
             default_value => undef,

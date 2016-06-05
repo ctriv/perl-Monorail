@@ -17,15 +17,15 @@ has dbix     => (
 sub upgrade {
     my ($self, $db_type) = @_;
 
-    my $schema = $self->dbix;
-    my $txn_guard = $schema->txn_scope_guard;
+    my $dbix      = $self->dbix;
+    my $txn_guard = $dbix->txn_scope_guard;
 
     my @changes = @{$self->upgrade_steps};
 
     foreach my $change (@changes) {
         $change->db_type($db_type);
 
-        $change->transform_database($schema);
+        $change->transform_database($dbix);
     }
 
     $txn_guard->commit;
@@ -34,14 +34,14 @@ sub upgrade {
 sub downgrade {
     my ($self, $db_type) = @_;
 
-    my $schema    = $self->dbix;
-    my $txn_guard = $schema->txn_scope_guard;
+    my $dbix      = $self->dbix;
+    my $txn_guard = $dbix->txn_scope_guard;
 
     my @changes = @{$self->downgrade_steps};
     foreach my $change (@changes) {
         $change->db_type($db_type);
 
-        $change->transform_database($schema)
+        $change->transform_database($dbix)
     }
 
     $txn_guard->commit;

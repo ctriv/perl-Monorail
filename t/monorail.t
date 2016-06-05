@@ -13,19 +13,19 @@ describe 'A monorail object' => sub {
     my ($sut);
 
     before each => sub {
-        my $schema = My::Schema->connect(sub {
+        my $dbix = My::Schema->connect(sub {
             DBI->connect('dbi:SQLite:dbname=:memory:', undef, undef, { RaiseError => 1 })
         });
 
         $sut = Monorail->new(
-            dbix    => $schema,
+            dbix    => $dbix,
             basedir => dir($FindBin::Bin, qw/test-data valid-migrations/)->stringify,
             quiet   => 1,
         );
     };
 
-    it 'consumes the protoschema role' => sub {
-        ok(Monorail->meta->does_role('Monorail::Role::ProtoSchema'));
+    it 'consumes the ProtoDBIX role' => sub {
+        ok(Monorail->meta->does_role('Monorail::Role::ProtoDBIX'));
     };
 
     describe 'all_migrations method' => sub {

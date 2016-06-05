@@ -8,7 +8,7 @@ use Path::Class;
 use Test::Deep;
 
 describe 'A monorail migrationscript set' => sub {
-    my ($sut, $schema);
+    my ($sut);
     before each => sub {
         $sut    = Monorail::MigrationScript::Set->new(
             basedir => dir($FindBin::Bin, '..', 'test-data', 'valid-migrations')->stringify,

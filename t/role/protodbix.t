@@ -23,31 +23,31 @@ use Monorail::Recorder::monorail_resultset;
         }
     );
 
-    with 'Monorail::Role::ProtoSchema';
+    with 'Monorail::Role::ProtoDBIX';
 
 }
 
-describe 'The monorail protoschema Role' => sub {
+describe 'The monorail protosdbix Role' => sub {
     it 'requires a dbix method' => sub {
-        ok(Monorail::Role::ProtoSchema->meta->requires_method('dbix'));
+        ok(Monorail::Role::ProtoDBIX->meta->requires_method('dbix'));
     };
 
-    describe 'the protoschema method' => sub {
+    describe 'the protodbix method' => sub {
         my ($sut);
         before each => sub {
             $sut = My::Sut->new;
         };
 
-        it 'starts with a schema that has a model' => sub {
+        it 'starts with a dbix that has a model' => sub {
             is(scalar $sut->dbix->sources, 1);
         };
 
-        it 'returns a schema with no models' => sub {
-            is(scalar $sut->protoschema->sources, 0);
+        it 'returns a dbix with no models' => sub {
+            is(scalar $sut->protodbix->sources, 0);
         };
 
-        it 'returns a schema with the database handle' => sub {
-            cmp_ok($sut->protoschema->storage->dbh, '==', $sut->dbix->storage->dbh);
+        it 'returns a dbix with the database handle' => sub {
+            cmp_ok($sut->protodbix->storage->dbh, '==', $sut->dbix->storage->dbh);
         };
     }
 };

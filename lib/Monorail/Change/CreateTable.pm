@@ -56,7 +56,7 @@ sub as_sql_translator_table {
     return $table;
 }
 
-sub transform_model {
+sub transform_dbix {
     my ($self, $dbix) = @_;
 
     # This is going to need to be tweak, right now we're not tracking the
@@ -74,11 +74,11 @@ sub transform_model {
 sub anonymous_class_for_table {
     my ($self, $dbix) = @_;
 
-    my $schema_class = ref $dbix;
+    my $dbix_schema_class = ref $dbix;
     my $trans = SQL::Translator->new(
         producer => 'SQL::Translator::Producer::DBIx::Class::File',
         producer_args => {
-            prefix => $schema_class,
+            prefix => $dbix_schema_class,
         },
     );
 
@@ -86,10 +86,10 @@ sub anonymous_class_for_table {
 
     my $dbix_class_impl = $trans->producer->($trans);
 
-    $dbix_class_impl =~ s/\n\npackage $schema_class;.*$//s;
+    $dbix_class_impl =~ s/\n\npackage $dbix_schema_class;.*$//s;
 
     my $name = $self->name;
-    return ($dbix_class_impl, $name, "${schema_class}::$name");
+    return ($dbix_class_impl, $name, "${dbix_schema_class}::$name");
 
 }
 

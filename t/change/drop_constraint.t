@@ -37,8 +37,8 @@ describe 'An add field change' => sub {
         ));
     };
 
-    it 'manipulates an in-memory schema' => sub {
-        my $schema = DBIx::Class::Schema->connect(sub { DBI->connect('dbi:SQLite:dbname=:memory:') });
+    it 'manipulates an in-memory dbix' => sub {
+        my $dbix      = DBIx::Class::Schema->connect(sub { DBI->connect('dbi:SQLite:dbname=:memory:') });
         my $table_add = Monorail::Change::CreateTable->new(
             name => 'epcot',
             fields => [
@@ -53,15 +53,15 @@ describe 'An add field change' => sub {
             ],
             db_type => 'SQLite'
         );
-        $table_add->transform_model($schema);
+        $table_add->transform_dbix($dbix);
 
         my $index_add = Monorail::Change::CreateConstraint->new(%sut_args);
-        $index_add->transform_model($schema);
+        $index_add->transform_dbix($dbix);
 
-        $sut->transform_model($schema);
+        $sut->transform_dbix($dbix);
 
 
-        my %uniqs = $schema->source('epcot')->unique_constraints;
+        my %uniqs = $dbix->source('epcot')->unique_constraints;
         cmp_deeply($uniqs{$sut->name}, undef);
     }
 };

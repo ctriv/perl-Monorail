@@ -66,10 +66,10 @@ sub _build_producer {
 }
 
 sub transform_database {
-    my ($self, $schema) = @_;
+    my ($self, $dbix) = @_;
 
     foreach my $statement ($self->as_sql) {
-        $schema->storage->dbh->do($statement);
+        $dbix->storage->dbh->do($statement);
     }
 }
 

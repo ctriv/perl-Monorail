@@ -16,7 +16,7 @@ with 'Monorail::Role::Change::StandardSQL';
 
     $add_field->as_sql;
 
-    $add_field->update_dbix_schema($dbix)
+    $add_field->transform_dbix($dbix)
 
 =cut
 
@@ -46,7 +46,7 @@ sub as_sql_translator_field {
     );
 }
 
-sub transform_model {
+sub transform_dbix {
     my ($self, $dbix) = @_;
 
     # This is going to need to be tweak, right now we're not tracking the

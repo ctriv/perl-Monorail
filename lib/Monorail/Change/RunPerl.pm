@@ -14,7 +14,7 @@ sub as_hashref_keys {
     return qw/function/
 }
 
-sub transform_model {
+sub transform_dbix {
     return;
 }
 

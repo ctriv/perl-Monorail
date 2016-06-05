@@ -15,12 +15,14 @@ with 'Monorail::Role::Change::StandardSQL';
 
     $add_field->as_sql;
 
-    $add_field->update_dbix_schema($dbix)
+    $add_field->transform_dbix($dbix)
+
+    $add_field->transform_database($dbix);
 
 =cut
 
 
-has name           => (is => 'ro', isa => 'Str',  required => 1);
+has name => (is => 'ro', isa => 'Str',  required => 1);
 
 __PACKAGE__->meta->make_immutable;
 
@@ -33,7 +35,7 @@ sub as_sql {
     return $self->producer->drop_table($table);
 }
 
-sub transform_model {
+sub transform_dbix {
     my ($self, $dbix) = @_;
 
     # This is going to need to be tweak, right now we're not tracking the

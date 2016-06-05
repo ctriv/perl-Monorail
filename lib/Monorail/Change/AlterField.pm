@@ -96,7 +96,7 @@ sub as_sql {
     );
 }
 
-sub transform_model {
+sub transform_dbix {
     my ($self, $dbix) = @_;
 
     return unless $self->has_changes;

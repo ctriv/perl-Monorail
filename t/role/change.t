@@ -32,7 +32,7 @@ use Test::Deep;
         return qw/name table attr/;
     }
 
-    sub transform_model {
+    sub transform_dbix {
         return;
     }
 
@@ -53,8 +53,8 @@ describe 'The change role' => sub {
         ok(Monorail::Role::Change->meta->requires_method('transform_database'));
     };
 
-    it 'requires a transform_model method' => sub {
-        ok(Monorail::Role::Change->meta->requires_method('transform_model'));
+    it 'requires a transform_dbix method' => sub {
+        ok(Monorail::Role::Change->meta->requires_method('transform_dbix'));
     };
 
     describe 'as_hashref method' => sub {

@@ -19,7 +19,7 @@ with 'Monorail::Role::Change::StandardSQL';
 
     $crt_index->as_sql;
 
-    $crt_index->update_dbix_schema($dbix)
+    $crt_index->transform_dbix($dbix)
 
 =cut
 
@@ -53,7 +53,7 @@ sub as_sql_translator_index {
     );
 }
 
-sub transform_model {
+sub transform_dbix {
     my ($self, $dbix) = @_;
 
     $self->add_dbix_sqlt_callback($dbix, $self->table, sub {

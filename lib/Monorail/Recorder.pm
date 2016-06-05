@@ -34,7 +34,7 @@ has _table_is_present => (
 );
 
 
-with 'Monorail::Role::ProtoSchema';
+with 'Monorail::Role::ProtoDBIX';
 
 
 
@@ -66,10 +66,10 @@ sub mark_as_applied {
 sub _build_version_resultset {
     my ($self) = @_;
 
-    return $self->protoschema->resultset($self->version_resultset_name);
+    return $self->protodbix->resultset($self->version_resultset_name);
 }
 
-around _build_protoschema => sub {
+around _build_protodbix => sub {
     my ($orig, $self) = @_;
 
     my $schema = $self->$orig;
@@ -89,7 +89,7 @@ sub _ensure_our_table {
     my $has_table = eval { $self->version_resultset->first; 1 };
 
     if (!$has_table) {
-        $self->protoschema->deploy;
+        $self->protodbix->deploy;
     }
 
     $self->_table_is_present(1);
