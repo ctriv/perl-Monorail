@@ -163,10 +163,10 @@ sub alter_field {
     }
 }
 
-#
-# sub rename_field {
-#     my ($old_fld, $new_fld, $args) = @_;
-# }
+
+sub rename_field {
+    return alter_field(@_);
+}
 
 
 sub drop_field {

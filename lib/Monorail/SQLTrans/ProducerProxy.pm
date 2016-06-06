@@ -37,7 +37,8 @@ foreach my $meth (@methods) {
     __PACKAGE__->meta->add_method(
         $meth => sub {
             my $self = shift;
-            my $implementation = $self->producer_class->can($meth);
+            my $implementation = $self->producer_class->can($meth)
+                                || die sprintf("%s can't %s\n", $self->producer_class, $meth);
             return $implementation->(@_);
         }
     );

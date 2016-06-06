@@ -225,6 +225,57 @@ describe 'The monorail sql translator producer' => sub {
         };
     };
 
+    describe 'the rename_field method' => sub {
+        it 'should return a perl string for a AlterField change' => sub {
+            my $table = SQL::Translator::Schema::Table->new(
+                name => 'epcot'
+            );
+
+            my $from = SQL::Translator::Schema::Field->new(
+                table          => $table,
+                name           => 'ride',
+                data_type      => 'text',
+                is_nullable    => 0,
+                is_primary_key => 1,
+                is_unique      => 0,
+                default_value  => undef,
+                size           => [256],
+            );
+
+            my $to = SQL::Translator::Schema::Field->new(
+                table          => $table,
+                name           => 'attraction',
+                data_type      => 'text',
+                is_nullable    => 0,
+                is_primary_key => 1,
+                is_unique      => 0,
+                default_value  => undef,
+                size           => [256],
+            );
+
+
+            my $perl = SQL::Translator::Producer::Monorail::rename_field($from, $to);
+
+            my $change = eval $perl;
+
+            cmp_deeply($change, all(
+                isa('Monorail::Change::AlterField'),
+                methods(
+                    table       => 'epcot',
+                    has_changes => 1,
+                    from        => superhashof({name => 'ride'}),
+                    to          => superhashof({name => 'attraction'}),
+                ),
+            ));
+
+            # make sure at least with postgres we make the right sql.
+            $change->db_type('PostgreSQL');
+            my ($alter) = $change->as_sql;
+
+            like($alter, qr/ALTER TABLE epcot RENAME COLUMN ride TO attraction/i);
+        };
+    };
+
 
     describe 'the drop_field method' => sub {
         it 'should return a perl string for a DropField change' => sub {
