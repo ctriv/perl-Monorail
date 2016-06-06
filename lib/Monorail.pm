@@ -7,7 +7,6 @@ use Monorail::Recorder;
 
 use SQL::Translator;
 use SQL::Translator::Parser::DBIx::Class;
-use SQL::Translator::Diff;
 
 =head1 NAME
 
@@ -178,17 +177,12 @@ sub make_migration {
     my $schema_migrations = $self->_schema_from_current_migrations;
     my $schema_perl       = $self->_schema_from_dbix;
 
-    my $diff = SQL::Translator::Diff->new({
-        output_db              => 'Monorail',
-        source_schema          => $schema_migrations,
-        target_schema          => $schema_perl,
-    })->compute_differences;
-
     my $script = Monorail::MigrationScript::Writer->new(
-        name         => $name,
-        basedir      => $self->basedir,
-        diff         => $diff,
-        dependencies => [ map { $_->name } $self->all_migrations->current_dependencies ],
+        name          => $name,
+        basedir       => $self->basedir,
+        source_schema => $schema_migrations,
+        target_schema => $schema_perl,
+        dependencies  => [ map { $_->name } $self->all_migrations->current_dependencies ],
     );
 
     if ($script->write_file()) {

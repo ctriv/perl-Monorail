@@ -4,6 +4,7 @@ use strict;
 use warnings;
 
 use Module::Find;
+use SQL::Translator::Utils qw(batch_alter_table_statements);
 
 usesub Monorail::Change;
 
@@ -33,6 +34,48 @@ sub produce {
 
     return @changes;
 }
+
+
+sub batch_alter_table {
+    my ($table, $diff_hash, $options) = @_;
+
+    # as long as we're not renaming the table we don't need to be here
+    if (@{$diff_hash->{rename_table}} == 0) {
+        return batch_alter_table_statements($diff_hash, $options);
+    }
+
+    # first we need to perform drops which are on old table
+    my @out = batch_alter_table_statements($diff_hash, $options, qw(
+        alter_drop_constraint
+        alter_drop_index
+        drop_field
+    ));
+
+    # next comes the rename_table
+    my $old_table = $diff_hash->{rename_table}[0][0];
+    push(@out, rename_table($old_table, $table, $options));
+
+    # for alter_field (and so also rename_field) we need to make sure old
+    # field has table name set to new table otherwise calling alter_field dies
+    #warn "Marking alter fields and rename fields with $table\n";
+    $diff_hash->{alter_field} =
+        [map { $_->[0]->table($table) && $_ } @{$diff_hash->{alter_field}}];
+    $diff_hash->{rename_field} =
+        [map { $_->[0]->table($table) && $_ } @{$diff_hash->{rename_field}}];
+
+    # now add everything else
+    push(@out, batch_alter_table_statements($diff_hash, $options, qw(
+        add_field
+        alter_field
+        rename_field
+        alter_create_index
+        alter_create_constraint
+        alter_table
+    )));
+
+    return @out;
+}
+
 
 sub create_table {
     my ($table) = @_;
@@ -129,10 +172,6 @@ sub add_field {
 sub alter_field {
     my ($from, $to, $args) = @_;
 
-    if ($from->table->name ne $to->table->name) {
-        die "Can't alter field in another table";
-    }
-
     my $change = Monorail::Change::AlterField->new(
         table => $from->table->name,
         from  => {
@@ -156,6 +195,10 @@ sub alter_field {
     );
 
     if ($change->has_changes) {
+        if ($from->table->name ne $to->table->name) {
+            die sprintf("Can't alter field in another table (%s vs %s):\n%s\n", $from->table->name, $to->table->name, $change->as_perl);
+        }
+
         return $change->as_perl
     }
     else {

@@ -14,19 +14,13 @@ describe "A monorail migration script writer" => sub {
 
         $s2->add_table(name => 'epcot');
 
-        $diff = SQL::Translator::Diff->new({
-            output_db              => 'Monorail',
-            source_schema          => $s1,
-            target_schema          => $s2,
-        })->compute_differences;
-
-
         open(my $output_fh, ">", \$output);
 
         $sut = Monorail::MigrationScript::Writer->new(
             name           => 'wdw',
             basedir        => '/tmp', # not used in this test
-            diff           => $diff,
+            source_schema  => $s1,
+            target_schema  => $s2,
             dependencies   => [qw/dlr mk/],
             out_filehandle => $output_fh,
         );

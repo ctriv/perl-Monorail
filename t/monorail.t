@@ -50,10 +50,11 @@ describe 'A monorail object' => sub {
                 my ($class, %args) = @_;
 
                 cmp_deeply(\%args, {
-                    name => '0003_auto',
-                    basedir => $sut->basedir,
-                    diff    => ignore(),
-                    dependencies => [qw/0002_auto/]
+                    name          => '0003_auto',
+                    basedir       => $sut->basedir,
+                    source_schema => ignore(),
+                    target_schema => ignore(),
+                    dependencies  => [qw/0002_auto/]
                 });
 
                 return stub(write_file => 1);

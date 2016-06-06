@@ -21,20 +21,6 @@ has basedir => (
     required => 1,
 );
 
-has diff => (
-    is       => 'ro',
-    isa      => 'SQL::Translator::Diff',
-    required => 1,
-);
-
-has reversed_diff => (
-    is       => 'ro',
-    isa      => 'SQL::Translator::Diff',
-    required => 1,
-    lazy     => 1,
-    builder  => '_build_reversed_diff',
-);
-
 has dependencies => (
     is       => 'ro',
     isa      => 'ArrayRef[Str]',
@@ -69,6 +55,7 @@ has downgrade_changes => (
     builder => '_build_downgrade_changes',
 );
 
+with 'Monorail::Role::DiffHandler';
 
 __PACKAGE__->meta->make_immutable;
 
@@ -94,7 +81,6 @@ sub write_file {
 
     return 0 unless @$upgrade_changes;
 
-
     my $downgrade_changes = $self->downgrade_changes;
 
     my $perl = render_mt('migration_script', {
@@ -115,7 +101,7 @@ sub write_file {
 sub _build_upgrade_changes {
     my ($self) = @_;
 
-    my @changes = $self->diff->produce_diff_sql;
+    my @changes = $self->forward_diff->produce_diff_sql;
     @changes    = $self->_munge_changes_strings(@changes);
 
     return \@changes;
@@ -124,13 +110,14 @@ sub _build_upgrade_changes {
 sub _build_downgrade_changes {
     my ($self) = @_;
 
+    #use Data::Dumper;
+    #die Dumper($self->reversed_diff);
+
     my @changes = $self->reversed_diff->produce_diff_sql;
     @changes    = $self->_munge_changes_strings(@changes);
 
     return \@changes;
 }
-
-
 
 sub _build_filename {
     my ($self) = @_;
@@ -150,18 +137,7 @@ sub _build_out_filehandle {
     return $fh;
 }
 
-sub _build_reversed_diff {
-    my ($self) = @_;
 
-    my $diff = $self->diff;
-
-    return SQL::Translator::Diff->new({
-        output_db     => $diff->output_db,
-        source_schema => $diff->target_schema,
-        target_schema => $diff->source_schema,
-        # ignore_missing_methods => 1,
-    })->compute_differences;
-}
 
 sub _munge_changes_strings {
     my ($self, @changes) = @_;
