@@ -14,3 +14,6 @@ Refactor the StandardSQL change role to get as_sql into the role, define
 producer method name and as_sql_trans_obj() in the class.
 
 Fix autogened subs to have names.
+
+Workaround how the SQLite producer really only works when you use
+batch_alter_table.  Use the ProducerProxy layer to hide this.
