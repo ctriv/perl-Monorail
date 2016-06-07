@@ -235,11 +235,16 @@ sub drop_table {
     )->as_perl;
 }
 
-#
-# sub rename_table {
-#     my ($old_table, $new_table, $args) = @_;
-# }
-#
+
+sub rename_table {
+    my ($old_table, $new_table, $args) = @_;
+
+    return Monorail::Change::RenameTable->new(
+        old_name => $old_table->name,
+        new_name => $new_table->name,
+    )->as_perl;
+ }
+
 
 1;
 __END__
