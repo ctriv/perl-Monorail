@@ -40,10 +40,15 @@ has output_db => (
 sub _build_forward_diff {
     my ($self) = @_;
 
+    my $src = clone($self->source_schema);
+    my $tar = clone($self->target_schema);
+
+    $self->_strip_irrelevent_rename_mappings($src, $tar);
+
     return SQL::Translator::Diff->new({
         output_db              => $self->output_db,
-        source_schema          => clone($self->source_schema),
-        target_schema          => clone($self->target_schema),
+        source_schema          => $src,
+        target_schema          => $tar,
     })->compute_differences;
 }
 
@@ -53,6 +58,7 @@ sub _build_reversed_diff {
     my $src = clone($self->source_schema);
     my $tar = clone($self->target_schema);
 
+    $self->_strip_irrelevent_rename_mappings($src, $tar);
     $self->_add_reversed_rename_mappings($src, $tar);
 
     return SQL::Translator::Diff->new({
@@ -81,9 +87,40 @@ sub _add_reversed_rename_mappings {
 
         }
     }
+}
 
-    #use Data::Dumper;
-    #die Dumper([$from, $to]);
+{
+    my $do_strip = sub {
+        my ($from, $to) = @_;
+
+        my %to_tables = map { $_->name => $_ } $to->get_tables;
+
+        foreach my $table ($from->get_tables) {
+            if (my $old_name = $table->extra('renamed_from')) {
+                if (!$to_tables{$old_name}) {
+                    $table->remove_extra('renamed_from');
+                }
+            }
+
+            foreach my $field ($table->get_fields) {
+                my $renamed_from = $field->extra('renamed_from');
+
+                next unless $renamed_from;
+
+                my $other_table = $to_tables{$table->extra('renamed_from') || $table->name};
+                if (!$other_table->get_field($renamed_from)) {
+                    $field->remove_extra('renamed_from');
+                }
+            }
+        }
+    };
+
+    sub _strip_irrelevent_rename_mappings {
+        my ($self, $from_schema, $to_schema) = @_;
+
+        $do_strip->($from_schema, $to_schema);
+        $do_strip->($to_schema,   $from_schema);
+    }
 }
 
 1;
