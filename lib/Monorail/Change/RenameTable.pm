@@ -8,8 +8,8 @@ with 'Monorail::Role::Change::StandardSQL';
 =head1 SYNOPSIS
 
     my $add_field = Monorail::Change::RenameTable->new(
-        old_name => 'epcot_center',
-        new_name => 'epcot',
+        from => 'epcot_center',
+        to   => 'epcot',
     );
 
     print $add_field->as_perl;
@@ -21,8 +21,8 @@ with 'Monorail::Role::Change::StandardSQL';
 =cut
 
 
-has old_name => (is => 'ro', isa => 'Str',  required => 1);
-has new_name => (is => 'ro', isa => 'Str',  required => 1);
+has from => (is => 'ro', isa => 'Str',  required => 1);
+has to   => (is => 'ro', isa => 'Str',  required => 1);
 
 __PACKAGE__->meta->make_immutable;
 
@@ -30,8 +30,8 @@ __PACKAGE__->meta->make_immutable;
 sub as_sql {
     my ($self) = @_;
 
-    my $old = SQL::Translator::Schema::Table->new(name => $self->old_name);
-    my $new = SQL::Translator::Schema::Table->new(name => $self->new_name);
+    my $old = SQL::Translator::Schema::Table->new(name => $self->from);
+    my $new = SQL::Translator::Schema::Table->new(name => $self->to);
 
     return $self->producer->rename_table($old, $new);
 }
@@ -40,16 +40,16 @@ sub as_sql {
 sub transform_dbix {
     my ($self, $dbix) = @_;
 
-    my $source = $dbix->source($self->old_name);
-    $dbix->unregister_source($self->old_name);
+    my $source = $dbix->source($self->from);
+    $dbix->unregister_source($self->from);
 
-    $source->name($self->new_name);
+    $source->name($self->to);
 
-    $dbix->register_source($self->new_name, $source);
+    $dbix->register_source($self->to, $source);
 }
 
 sub as_hashref_keys {
-    return qw/old_name new_name/;
+    return qw/from to/;
 }
 
 

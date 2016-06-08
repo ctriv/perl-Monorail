@@ -13,8 +13,8 @@ describe 'An add field change' => sub {
     my %sut_args;
     before each => sub {
         %sut_args = (
-            new_name => 'epcot',
-            old_name => 'epcot_center',
+            to   => 'epcot',
+            from => 'epcot_center',
         );
         $sut = Monorail::Change::RenameTable->new(%sut_args);
         $sut->db_type('PostgreSQL');

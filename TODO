@@ -1,7 +1,8 @@
 Wrap up all the missing changes.
-    Rename operations.
     Views.
     Trigger.
+
+Write some tests for the recent work on making renames more robust.
 
 Migration squashing.  (maybe...)
 
