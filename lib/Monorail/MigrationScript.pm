@@ -36,8 +36,11 @@ has name => (
 
 __PACKAGE__->meta->make_immutable;
 
-=head1 SYNOPSIS
+=head1 NAME
 
+Monorail::MigrationScript
+
+=head1 SYNOPSIS
 
     my $migration = Monorail::MigrationScript->new(filename => $filename);
 
@@ -48,6 +51,10 @@ __PACKAGE__->meta->make_immutable;
     # or
 
     $migration->downgrade
+
+=head1 DESCRIPTION
+
+A MigrationScript object represents a migration perl file from the basedir.  
 
 =cut
 

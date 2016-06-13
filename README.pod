@@ -37,7 +37,7 @@ Any tool like Monorail ends up building a set of database updates called
 migrations.  In other tools like L<DBIx::Class::DeploymentHandler> these changes
 are SQL files, with monorail these migrations are objects.
 
-See L<Monorail::MigrationScript> for an example of what these migration files
+See L<Monorail::Role::Migration> for an example of what these migration files
 look like.
 
 =head2 No database needed
