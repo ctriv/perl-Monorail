@@ -121,7 +121,7 @@ has recorder => (
 
 =head2 all_migrations
 
-A L:Monorail::MigrationScript::Set> object representing all the migrations
+A L<Monorail::MigrationScript::Set> object representing all the migrations
 that currently exist in the basedir.
 
 =cut
