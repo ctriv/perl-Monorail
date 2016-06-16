@@ -56,6 +56,12 @@ sub as_sql_translator_table {
     return $table;
 }
 
+sub transform_schema {
+    my ($self, $schema) = @_;
+
+    $schema->add_table($self->as_sql_translator_table);
+}
+
 sub transform_dbix {
     my ($self, $dbix) = @_;
 

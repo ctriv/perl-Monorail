@@ -53,6 +53,12 @@ sub as_sql_translator_index {
     );
 }
 
+sub transform_schema {
+    my ($self, $schema) = @_;
+
+    $schema->get_table($self->table)->add_index($self->as_sql_translator_index);
+}
+
 sub transform_dbix {
     my ($self, $dbix) = @_;
 

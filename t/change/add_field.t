@@ -71,6 +71,21 @@ describe 'An add field change' => sub {
             is_nullable   => 1,
             size          => undef,
         });
+    };
+
+    it 'transforms a schema object' => sub {
+        my $schema = SQL::Translator::Schema->new();
+        $schema->add_table(name => 'epcot');
+
+        $sut->transform_schema($schema);
+
+        cmp_deeply(
+            $schema->get_table('epcot')->get_field('description'),
+            methods(
+                name      => 'description',
+                data_type => 'TEXT',
+            )
+        );
     }
 };
 

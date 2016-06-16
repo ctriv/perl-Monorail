@@ -33,6 +33,16 @@ describe 'An add field change' => sub {
         ));
     };
 
+    it 'transforms a schema' => sub {
+        my $schema = SQL::Translator::Schema->new();
+        $schema->add_table(name => 'epcot');
+
+        $sut->transform_schema($schema);
+        
+        my @tables = $schema->get_tables;
+        cmp_deeply(\@tables, []);
+    };
+
     it 'manipulates an in-memory dbix' => sub {
         my $dbix      = DBIx::Class::Schema->connect(sub { DBI->connect('dbi:SQLite:dbname=:memory:') });
         my $table_add = Monorail::Change::CreateTable->new(

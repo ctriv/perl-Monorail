@@ -115,6 +115,17 @@ sub transform_dbix {
     );
 }
 
+sub transform_schema {
+    my ($self, $schema) = @_;
+
+    return unless $self->has_changes;
+
+    my $table = $schema->get_table($self->table);
+
+    $table->drop_field($self->from->{name});
+    $table->add_field($self->to_as_sql_translator_field);
+}
+
 sub as_hashref_keys {
     return qw/table from to/;
 }
@@ -133,6 +144,7 @@ sub from_as_sql_translator_field {
         is_primary_key => $self->from->{is_primary_key},
         is_unique      => $self->from->{is_unique},
         default_value  => $self->from->{default_value},
+        size           => $self->to->{size},
     );
 }
 
@@ -149,6 +161,7 @@ sub to_as_sql_translator_field {
         is_primary_key => $self->to->{is_primary_key},
         is_unique      => $self->to->{is_unique},
         default_value  => $self->to->{default_value},
+        size           => $self->to->{size},
     );
 }
 

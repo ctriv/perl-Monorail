@@ -35,6 +35,12 @@ sub as_sql {
     return $self->producer->drop_table($table);
 }
 
+sub transform_schema {
+    my ($self, $schema) = @_;
+
+    $schema->drop_table($self->name);
+}
+
 sub transform_dbix {
     my ($self, $dbix) = @_;
 

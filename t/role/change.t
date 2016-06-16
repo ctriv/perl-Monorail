@@ -36,6 +36,10 @@ use Test::Deep;
         return;
     }
 
+    sub transform_schema {
+        return;
+    }
+
     sub transform_database {
         return;
     }
@@ -55,6 +59,10 @@ describe 'The change role' => sub {
 
     it 'requires a transform_dbix method' => sub {
         ok(Monorail::Role::Change->meta->requires_method('transform_dbix'));
+    };
+
+    it 'requires a transform_schema method' => sub {
+        ok(Monorail::Role::Change->meta->requires_method('transform_schema'));
     };
 
     describe 'as_hashref method' => sub {

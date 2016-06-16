@@ -17,7 +17,7 @@ describe 'An create table change' => sub {
                 {
                     name           => 'id',
                     type           => 'integer',
-                    is_nullable    => 1,
+                    is_nullable    => 0,
                     is_primary_key => 1,
                     is_unique      => 0,
                     default_value  => undef,
@@ -44,6 +44,28 @@ describe 'An create table change' => sub {
         ));
     };
 
+    it 'transforms a schema' => sub {
+        my $schema = SQL::Translator::Schema->new;
+        $sut->transform_schema($schema);
+
+        cmp_deeply(
+            $schema->get_table($sut_args{name}),
+            methods(
+                name       => 'epcot',
+                get_fields => [
+                    methods(
+                        name           => 'id',
+                        data_type      => 'integer',
+                        is_nullable    => 0,
+                        is_primary_key => 1,
+                        is_unique      => 0,
+                        default_value  => undef,
+                    ),
+                ],
+            )
+        );
+    };
+
     it 'manipulates an in-memory dbix' => sub {
         my $dbix = DBIx::Class::Schema->connect(sub { DBI->connect('dbi:SQLite:dbname=:memory:') });
 
@@ -59,7 +81,7 @@ describe 'An create table change' => sub {
             is_nullable   => 0,
             size          => 16,
         }));
-    }
+    };
 };
 
 runtests;

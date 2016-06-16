@@ -46,6 +46,12 @@ sub as_sql_translator_field {
     );
 }
 
+sub transform_schema {
+    my ($self, $schema) = @_;
+
+    $schema->get_table($self->table)->drop_field($self->name);
+}
+
 sub transform_dbix {
     my ($self, $dbix) = @_;
 

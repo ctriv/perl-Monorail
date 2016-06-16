@@ -52,6 +52,12 @@ sub as_sql_translator_constraint {
     );
 }
 
+sub transform_schema {
+    my ($self, $schema) = @_;
+
+    $schema->get_table($self->table)->drop_constraint($self->name);
+}
+
 sub transform_dbix {
     my ($self, $dbix) = @_;
 

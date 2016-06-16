@@ -37,6 +37,30 @@ describe 'An add field change' => sub {
         ));
     };
 
+    it 'transforms a schema' => sub {
+        my $schema = SQL::Translator::Schema->new;
+        $schema->add_table(name => 'epcot')->add_field(
+            name           => 'ride',
+            data_type      => 'text',
+            is_nullable    => 1,
+            is_primary_key => 0,
+            is_unique      => 0,
+            default_value  => undef,
+        );
+
+        $sut->transform_schema($schema);
+
+        my ($index) = $schema->get_table('epcot')->get_indices;
+        cmp_deeply(
+            $index,
+            methods(
+                type => 'NORMAL',
+                name => 'ride_idx',
+                fields => [qw/ride/],
+            )
+        );
+    };
+
     it 'manipulates an in-memory dbix' => sub {
         my $dbix      = DBIx::Class::Schema->connect(sub { DBI->connect('dbi:SQLite:dbname=:memory:') });
         my $table_add = Monorail::Change::CreateTable->new(

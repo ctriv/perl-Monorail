@@ -36,6 +36,12 @@ sub as_sql {
     return $self->producer->rename_table($old, $new);
 }
 
+sub transform_schema {
+    my ($self, $schema) = @_;
+
+    $schema->get_table($self->from)->name($self->to);
+}
+
 
 sub transform_dbix {
     my ($self, $dbix) = @_;

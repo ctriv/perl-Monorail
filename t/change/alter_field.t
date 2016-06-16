@@ -74,12 +74,28 @@ describe 'An alter field change' => sub {
 
         $sut->transform_dbix($dbix);
 
-
         my $col = $dbix->source('epcot')->column_info('description');
 
         cmp_deeply($col, superhashof({
             is_nullable   => 0
         }));
+    };
+
+    it 'transforms a schema' => sub {
+        my $schema = SQL::Translator::Schema->new;
+
+        my $table = SQL::Translator::Schema::Table->new(name => 'epcot');
+        $table->add_field(%{$sut_args{from}});
+        $schema->add_table($table);
+
+        $sut->transform_schema($schema);
+
+        cmp_deeply(
+            $schema->get_table('epcot')->get_field('description'),
+            methods(
+                is_nullable => 0
+            )
+        );
     };
 
     describe 'has_changes method' => sub {

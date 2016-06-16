@@ -5,7 +5,6 @@ use Test::Deep;
 use Monorail::Change::RunPerl;
 
 describe 'An run perl change' => sub {
-
     it 'produces valid perl' => sub {
         my $sut = Monorail::Change::RunPerl->new(function => sub {
             return 'epcot';

@@ -79,6 +79,12 @@ sub transform_dbix {
     );
 }
 
+sub transform_schema {
+    my ($self, $schema) = @_;
+
+    $schema->get_table($self->table)->add_field($self->as_sql_translator_field);
+}
+
 sub as_hashref_keys {
     return qw/name table is_nullable type is_primary_key is_nullable is_unique default_value size/;
 }

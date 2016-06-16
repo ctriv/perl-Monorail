@@ -36,6 +36,10 @@ use Test::Deep;
         return;
     }
 
+    sub transform_schema {
+        return;
+    }
+
     sub as_sql {
         return (
             'SELECT * FROM vacation',

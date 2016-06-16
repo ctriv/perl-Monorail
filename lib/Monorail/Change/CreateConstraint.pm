@@ -64,6 +64,13 @@ sub as_sql_translator_constraint {
     );
 }
 
+sub transform_schema {
+    my ($self, $schema) = @_;
+
+    $schema->get_table($self->table)->add_constraint($self->as_sql_translator_constraint);
+}
+
+
 sub transform_dbix {
     my ($self, $dbix) = @_;
     # This is going to need to be tweak, right now we're not tracking the

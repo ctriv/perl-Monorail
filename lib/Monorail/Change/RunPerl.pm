@@ -14,6 +14,10 @@ sub as_hashref_keys {
     return qw/function/
 }
 
+sub transform_schema {
+    return;
+}
+
 sub transform_dbix {
     return;
 }

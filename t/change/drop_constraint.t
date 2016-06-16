@@ -24,7 +24,7 @@ describe 'An add field change' => sub {
     };
 
     it 'produces valid sql' => sub {
-        like($sut->as_sql, qr/LTER TABLE epcot DROP CONSTRAINT uniq_epcot_name_idx/i);
+        like($sut->as_sql, qr/ALTER TABLE epcot DROP CONSTRAINT uniq_epcot_name_idx/i);
     };
 
     it 'produces valid perl' => sub {
@@ -35,6 +35,32 @@ describe 'An add field change' => sub {
             isa('Monorail::Change::DropConstraint'),
             methods(%sut_args),
         ));
+    };
+
+    it 'transforms a schema' => sub {
+        my $schema = SQL::Translator::Schema->new;
+        my $table = $schema->add_table(name => 'epcot');
+
+        $table->add_field(
+            name           => 'name',
+            data_type      => 'text',
+            is_nullable    => 0,
+            is_primary_key => 1,
+            is_unique      => 0,
+            default_value  => undef,
+        );
+        $table->add_constraint(
+            name        => 'uniq_epcot_name_idx',
+            type        => 'unique',
+            field_names => [qw/name/],
+        );
+
+        $sut->transform_schema($schema);
+
+        my ($uniq) = $schema->get_table('epcot')->get_constraints;
+
+        cmp_deeply($uniq, undef);
+
     };
 
     it 'manipulates an in-memory dbix' => sub {

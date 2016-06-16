@@ -24,7 +24,7 @@ describe 'A monorail bootstrapper' => sub {
     it 'can create a perl script' => sub {
         $sut->write_script_file;
 
-        diag($output);
+    #    diag($output);
         pass();
     };
 };
