@@ -24,10 +24,6 @@ describe 'A monorail object' => sub {
         );
     };
 
-    it 'consumes the ProtoDBIX role' => sub {
-        ok(Monorail->meta->does_role('Monorail::Role::ProtoDBIX'));
-    };
-
     describe 'all_migrations method' => sub {
         it 'returns a migration script set with the correct basedir' => sub {
             is($sut->all_migrations->basedir, $sut->basedir);

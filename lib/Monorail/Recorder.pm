@@ -33,10 +33,12 @@ has _table_is_present => (
     default => 0,
 );
 
-
-with 'Monorail::Role::ProtoDBIX';
-
-
+has protodbix => (
+    is      => 'ro',
+    isa     => 'DBIx::Class::Schema',
+    lazy    => 1,
+    builder => '_build_protodbix',
+);
 
 
 sub is_applied {
@@ -69,18 +71,6 @@ sub _build_version_resultset {
     return $self->protodbix->resultset($self->version_resultset_name);
 }
 
-around _build_protodbix => sub {
-    my ($orig, $self) = @_;
-
-    my $schema = $self->$orig;
-
-    require Monorail::Recorder::monorail_resultset;
-
-    $schema->register_class($self->version_resultset_name => 'Monorail::Recorder::monorail_resultset');
-
-    return $schema;
-};
-
 sub _ensure_our_table {
     my ($self) = @_;
 
@@ -93,6 +83,19 @@ sub _ensure_our_table {
     }
 
     $self->_table_is_present(1);
+}
+
+
+sub _build_protodbix {
+    my ($self) = @_;
+
+    my $dbix = DBIx::Class::Schema->connect(sub { $self->dbix->storage->dbh });
+
+    require Monorail::Recorder::monorail_resultset;
+
+    $dbix->register_class($self->version_resultset_name => 'Monorail::Recorder::monorail_resultset');
+
+    return $dbix;
 }
 
 
