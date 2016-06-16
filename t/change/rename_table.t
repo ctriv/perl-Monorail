@@ -40,13 +40,11 @@ describe 'An add field change' => sub {
 
         $sut->transform_schema($schema);
 
-        my @tables = $schema->get_tables;
-        cmp_deeply(
-            \@tables,
-            [
-                methods(name => 'epcot')
-            ]
-        );
+        my $old = $schema->get_table('epcot_center');
+        my $new = $schema->get_table('epcot');
+
+        cmp_deeply($old, undef);
+        cmp_deeply($new, methods(name => 'epcot'));
     };
 
     it 'manipulates an in-memory dbix' => sub {

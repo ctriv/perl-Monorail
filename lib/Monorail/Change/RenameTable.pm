@@ -39,7 +39,11 @@ sub as_sql {
 sub transform_schema {
     my ($self, $schema) = @_;
 
-    $schema->get_table($self->from)->name($self->to);
+    my $table = $schema->drop_table($self->from);
+
+    $table->name($self->to);
+
+    $schema->add_table($table);
 }
 
 
