@@ -32,10 +32,6 @@ use Test::Deep;
         return qw/name table attr/;
     }
 
-    sub transform_dbix {
-        return;
-    }
-
     sub transform_schema {
         return;
     }
@@ -55,10 +51,6 @@ describe 'The change role' => sub {
 
     it 'requires a transform_database method' => sub {
         ok(Monorail::Role::Change->meta->requires_method('transform_database'));
-    };
-
-    it 'requires a transform_dbix method' => sub {
-        ok(Monorail::Role::Change->meta->requires_method('transform_dbix'));
     };
 
     it 'requires a transform_schema method' => sub {

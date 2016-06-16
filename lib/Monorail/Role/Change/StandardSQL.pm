@@ -24,33 +24,6 @@ has schema_table_object => (
     builder => '_build_schema_table_object',
 );
 
-
-sub add_dbix_sqlt_callback {
-    my ($self, $dbix, $source, $cb) = @_;
-
-    my $source_class = $dbix->source($source)->result_class;
-
-    my $existing = $source_class->can('sqlt_deploy_hook');
-
-    my $new;
-    if ($existing) {
-        $new = sub {
-            $existing->(@_);
-            $cb->(@_);
-        };
-    }
-    else {
-        $new = $cb;
-    }
-
-    {
-        no strict 'refs';
-        no warnings 'redefine';
-
-        *{"${source_class}::sqlt_deploy_hook"} = $new;
-    }
-}
-
 sub _build_schema_table_object {
     my ($self) = @_;
 

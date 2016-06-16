@@ -96,24 +96,6 @@ sub as_sql {
     );
 }
 
-sub transform_dbix {
-    my ($self, $dbix) = @_;
-
-    return unless $self->has_changes;
-
-    # This is going to need to be tweak, right now we're not tracking the
-    # model's name in dbix... which means while this will work for the style
-    # that we have at work - it won't work for all (or even most) dbix setups
-    $dbix->source($self->table)->remove_column($self->from->{name});
-    $dbix->source($self->table)->add_column(
-        $self->to->{name} => {
-            data_type     => $self->to->{type},
-            is_nullable   => $self->to->{is_nullable},
-            default_value => $self->to->{default_value},
-            size          => $self->to->{size},
-        }
-    );
-}
 
 sub transform_schema {
     my ($self, $schema) = @_;

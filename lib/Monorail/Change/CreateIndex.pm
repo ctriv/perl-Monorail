@@ -59,16 +59,6 @@ sub transform_schema {
     $schema->get_table($self->table)->add_index($self->as_sql_translator_index);
 }
 
-sub transform_dbix {
-    my ($self, $dbix) = @_;
-
-    $self->add_dbix_sqlt_callback($dbix, $self->table, sub {
-        my ($rs, $sqlt_table) = @_;
-
-        $sqlt_table->add_index($self->as_sql_translator_index);
-    });
-}
-
 sub as_hashref_keys {
     return qw/
         name table type fields options

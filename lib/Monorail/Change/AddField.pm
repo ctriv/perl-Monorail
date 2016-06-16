@@ -63,22 +63,6 @@ sub as_sql_translator_field {
     );
 }
 
-sub transform_dbix {
-    my ($self, $dbix) = @_;
-
-    # This is going to need to be tweak, right now we're not tracking the
-    # model's name in dbix... which means while this will work for the style
-    # that we have at work - it won't work for all (or even most) dbix setups
-    $dbix->source($self->table)->add_column(
-        $self->name => {
-            data_type     => $self->type,
-            is_nullable   => $self->is_nullable,
-            default_value => $self->default_value,
-            size          => $self->size,
-        }
-    );
-}
-
 sub transform_schema {
     my ($self, $schema) = @_;
 

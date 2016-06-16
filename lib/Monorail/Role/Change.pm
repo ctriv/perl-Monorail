@@ -8,7 +8,7 @@ has db_type => (
     isa => 'Str',
 );
 
-requires qw/as_hashref_keys transform_database transform_schema transform_dbix/;
+requires qw/as_hashref_keys transform_database transform_schema/;
 
 # table first, then name, then the rest sorted alpha.
 my $key_sorter = sub {

@@ -65,23 +65,6 @@ describe 'An create table change' => sub {
             )
         );
     };
-
-    it 'manipulates an in-memory dbix' => sub {
-        my $dbix = DBIx::Class::Schema->connect(sub { DBI->connect('dbi:SQLite:dbname=:memory:') });
-
-        $sut->db_type('SQLite');
-
-        $sut->transform_dbix($dbix);
-
-        my $col = $dbix->source('epcot')->column_info('id');
-
-        cmp_deeply($col, superhashof({
-            default_value => undef,
-            data_type     => re(qr/integer/i),
-            is_nullable   => 0,
-            size          => 16,
-        }));
-    };
 };
 
 runtests;

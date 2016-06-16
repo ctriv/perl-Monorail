@@ -32,10 +32,6 @@ use Test::Deep;
         return qw/name table attr/;
     }
 
-    sub transform_dbix {
-        return;
-    }
-
     sub transform_schema {
         return;
     }
@@ -98,48 +94,6 @@ describe 'The standard sql change role' => sub {
             $sut->transform_database($dbix);
 
             cmp_deeply(\@executed_sql, [$sut->as_sql]);
-        }
-    };
-
-    describe 'add_dbix_sqlt_callback method' => sub {
-        it 'adds the sub if it does not exist in the source class' => sub {
-            {
-                package my::mocked::empty_source;
-
-                # make sure the namespace is setup.
-                our $created = 1;
-            }
-            my $mock_dbix = stub(source => stub(result_class => 'my::mocked::empty_source'));
-            my $called    = 0;
-
-            $sut->add_dbix_sqlt_callback($mock_dbix, 'matters not', sub {
-                $called++;
-            });
-
-            my::mocked::empty_source->sqlt_deploy_hook;
-            ok($called);
-        };
-
-        it 'wraps the sub if it exists in the source class' => sub {
-            $monorail::testing::called = 0;
-
-            {
-                package my::mocked::setup_source;
-
-                # make sure the namespace is setup.
-                sub sqlt_deploy_hook {
-                    $monorail::testing::called++;
-                }
-            }
-            my $mock_dbix = stub(source => stub(result_class => 'my::mocked::setup_source'));
-
-
-            $sut->add_dbix_sqlt_callback($mock_dbix, 'matters not', sub {
-                $monorail::testing::called++;
-            });
-
-            my::mocked::setup_source->sqlt_deploy_hook;
-            is($monorail::testing::called , 2);
         }
     };
 };

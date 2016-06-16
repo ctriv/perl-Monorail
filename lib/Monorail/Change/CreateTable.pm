@@ -62,43 +62,4 @@ sub transform_schema {
     $schema->add_table($self->as_sql_translator_table);
 }
 
-sub transform_dbix {
-    my ($self, $dbix) = @_;
-
-    # This is going to need to be tweak, right now we're not tracking the
-    # model's name in dbix... which means while this will work for the style
-    # that we have at work - it won't work for all (or even most) dbix setups
-
-    my ($implementation, $name, $class) = $self->anonymous_class_for_table($dbix);
-
-    eval $implementation;
-    die $@ if $@;
-
-    $dbix->register_class($name, $class);
-}
-
-sub anonymous_class_for_table {
-    my ($self, $dbix) = @_;
-
-    my $dbix_schema_class = ref $dbix;
-    my $trans = SQL::Translator->new(
-        producer => 'SQL::Translator::Producer::DBIx::Class::File',
-        producer_args => {
-            prefix => $dbix_schema_class,
-        },
-    );
-
-    $trans->schema->add_table($self->as_sql_translator_table);
-
-    my $dbix_class_impl = $trans->producer->($trans);
-
-    $dbix_class_impl =~ s/\n\npackage $dbix_schema_class;.*$//s;
-
-    my $name = $self->name;
-    return ($dbix_class_impl, $name, "${dbix_schema_class}::$name");
-
-}
-
-
-
 1;

@@ -18,10 +18,6 @@ sub transform_schema {
     return;
 }
 
-sub transform_dbix {
-    return;
-}
-
 sub transform_database {
     my ($self, $dbix) = @_;
 

@@ -58,23 +58,6 @@ sub transform_schema {
     $schema->get_table($self->table)->drop_constraint($self->name);
 }
 
-sub transform_dbix {
-    my ($self, $dbix) = @_;
-
-    # This is going to need to be tweak, right now we're not tracking the
-    # model's name in dbix... which means while this will work for the style
-    # that we have at work - it won't work for all (or even most) dbix setups
-    if ($self->type eq 'unique') {
-        # there's no public api for doing this... perhaps will should submit
-        # a pull request.
-        my $uniqs = $dbix->source($self->table)->_unique_constraints;
-        delete $uniqs->{$self->name}
-    }
-    else {
-        die $self->type . " constraints are not yet supported.\n";
-    }
-}
-
 sub as_hashref_keys {
     return qw/name table type field_names/;
 }

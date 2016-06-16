@@ -47,17 +47,6 @@ sub transform_schema {
 }
 
 
-sub transform_dbix {
-    my ($self, $dbix) = @_;
-
-    my $source = $dbix->source($self->from);
-    $dbix->unregister_source($self->from);
-
-    $source->name($self->to);
-
-    $dbix->register_source($self->to, $source);
-}
-
 sub as_hashref_keys {
     return qw/from to/;
 }

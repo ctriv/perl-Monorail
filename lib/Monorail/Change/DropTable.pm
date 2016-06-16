@@ -41,14 +41,6 @@ sub transform_schema {
     $schema->drop_table($self->name);
 }
 
-sub transform_dbix {
-    my ($self, $dbix) = @_;
-
-    # This is going to need to be tweak, right now we're not tracking the
-    # model's name in dbix... which means while this will work for the style
-    # that we have at work - it won't work for all (or even most) dbix setups
-    $dbix->unregister_source($self->name);
-}
 
 sub as_hashref_keys {
     return qw/name/;

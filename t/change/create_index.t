@@ -60,43 +60,6 @@ describe 'An add field change' => sub {
             )
         );
     };
-
-    it 'manipulates an in-memory dbix' => sub {
-        my $dbix      = DBIx::Class::Schema->connect(sub { DBI->connect('dbi:SQLite:dbname=:memory:') });
-        my $table_add = Monorail::Change::CreateTable->new(
-            name => 'epcot',
-            fields => [
-                {
-                    name           => 'ride',
-                    type           => 'text',
-                    is_nullable    => 1,
-                    is_primary_key => 1,
-                    is_unique      => 0,
-                    default_value  => undef,
-                },
-            ],
-            db_type => 'SQLite'
-        );
-
-        $table_add->transform_dbix($dbix);
-        $sut->db_type('SQLite');
-        $sut->transform_dbix($dbix);
-
-        my $class = $dbix->source('epcot')->result_class;
-
-        my $sqlt_table = mock();
-        my $was_called = $sqlt_table->expects('add_index')->once->with_deep(all(
-            isa('SQL::Translator::Schema::Index'),
-            methods(
-                name   => $sut->name,
-                fields => scalar $sut->fields,
-            ),
-        ));
-
-        $class->sqlt_deploy_hook($sqlt_table);
-
-        ok($was_called->verify)
-    }
 };
 
 runtests;

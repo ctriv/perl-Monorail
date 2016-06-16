@@ -37,30 +37,6 @@ describe 'An create constraint change' => sub {
             ));
         };
 
-        it 'manipulates an in-memory dbix' => sub {
-            my $dbix      = DBIx::Class::Schema->connect(sub { DBI->connect('dbi:SQLite:dbname=:memory:') });
-            my $table_add = Monorail::Change::CreateTable->new(
-                name => 'epcot',
-                fields => [
-                    {
-                        name           => 'name',
-                        type           => 'text',
-                        is_nullable    => 1,
-                        is_primary_key => 1,
-                        is_unique      => 0,
-                        default_value  => undef,
-                    },
-                ],
-                db_type => 'SQLite'
-            );
-
-            $table_add->transform_dbix($dbix);
-            $sut->transform_dbix($dbix);
-
-            my %uniqs = $dbix->source('epcot')->unique_constraints;
-            cmp_deeply($uniqs{$sut->name}, $sut->field_names);
-        };
-
         it 'transforms a schema' => sub {
             my $schema = SQL::Translator::Schema->new;
             $schema->add_table(name => 'epcot')->add_field(
@@ -154,78 +130,6 @@ describe 'An create constraint change' => sub {
                     reference_fields => ['id'],
                 )
             )
-        };
-
-        it 'manipulates an in-memory dbix' => sub {
-            my $dbix            = DBIx::Class::Schema->connect(sub { DBI->connect('dbi:SQLite:dbname=:memory:') });
-            my $track_table_add = Monorail::Change::CreateTable->new(
-                name => 'track',
-                fields => [
-                    {
-                        name           => 'album_id',
-                        type           => 'interger',
-                        is_nullable    => 1,
-                        is_primary_key => 1,
-                        is_unique      => 0,
-                        default_value  => undef,
-                    },
-                ],
-                db_type => 'SQLite'
-            );
-
-            my $album_table_add = Monorail::Change::CreateTable->new(
-                name => 'album',
-                fields => [
-                    {
-                        name           => 'id',
-                        type           => 'interger',
-                        is_nullable    => 1,
-                        is_primary_key => 1,
-                        is_unique      => 0,
-                        default_value  => undef,
-                    },
-                ],
-                db_type => 'SQLite'
-            );
-
-            $track_table_add->transform_dbix($dbix);
-
-            $album_table_add->transform_dbix($dbix);
-            $sut->transform_dbix($dbix);
-
-            my $rel1 = $dbix->source('track')->relationship_info('album');
-            my $rel2 = $dbix->source('album')->relationship_info('tracks');
-
-            cmp_deeply($rel1, {
-                'attrs' => {
-                             'is_foreign_key_constraint' => 1,
-                             'accessor' => 'single',
-                             'undef_on_null_fk' => 1,
-                             'is_depends_on' => 1,
-                             'fk_columns' => {
-                                               'album_id' => 1
-                                             }
-                           },
-                'cond' => {
-                            'foreign.id' => 'self.album_id'
-                          },
-                'source' => 'album',
-                'class' => 'album'
-            });
-            cmp_deeply($rel2, {
-                    'source' => 'track',
-                    'class' => 'track',
-                    'attrs' => {
-                                 'is_depends_on' => 0,
-                                 'cascade_copy' => 1,
-                                 'join_type' => 'LEFT',
-                                 'accessor' => 'multi',
-                                 'cascade_delete' => 1
-                               },
-                    'cond' => {
-                                'foreign.album_id' => 'self.id'
-                              }
-            })
         };
     };
 };

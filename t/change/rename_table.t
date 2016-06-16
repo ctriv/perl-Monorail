@@ -46,40 +46,6 @@ describe 'An add field change' => sub {
         cmp_deeply($old, undef);
         cmp_deeply($new, methods(name => 'epcot'));
     };
-
-    it 'manipulates an in-memory dbix' => sub {
-        my $dbix      = DBIx::Class::Schema->connect(sub { DBI->connect('dbi:SQLite:dbname=:memory:') });
-        my $table_add = Monorail::Change::CreateTable->new(
-            name => 'epcot_center',
-            fields => [
-                {
-                    name           => 'description',
-                    type           => 'text',
-                    is_nullable    => 1,
-                    is_primary_key => 1,
-                    is_unique      => 0,
-                    default_value  => undef,
-                },
-            ],
-            db_type => 'SQLite'
-        );
-
-        $table_add->transform_dbix($dbix);
-
-        $sut->db_type('SQLite');
-
-        $sut->transform_dbix($dbix);
-
-        my $has_epcot = grep { $_ eq 'epcot' } $dbix->sources;
-
-        ok($has_epcot);
-
-        is($dbix->source('epcot')->name, 'epcot');
-
-        my $has_epcot_center = grep { $_ eq 'epcot_center' } $dbix->sources;
-
-        ok(!$has_epcot_center);
-    };
 };
 
 runtests;
