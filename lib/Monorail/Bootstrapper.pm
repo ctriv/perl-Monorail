@@ -48,6 +48,11 @@ has lib_dirs => (
     isa => 'ArrayRef[Str]'
 );
 
+has relative_lib_dirs => (
+    is  => 'ro',
+    isa => 'ArrayRef[Str]',
+);
+
 has perl => (
     is      => 'ro',
     isa     => 'Str',
@@ -63,9 +68,17 @@ sub write_script_file {
     /;
 
     if ($self->lib_dirs) {
-        $template_args{lib_dirs} = encoded_string(
-            join(' ', @{$template_args{lib_dirs}})
-        );
+        $template_args{lib_dirs} = [
+            map { encoded_string($_) } @{$self->lib_dirs}
+        ];
+    }
+
+    if ($self->relative_lib_dirs) {
+        $template_args{relative_lib_dirs} = [
+            map {
+                encoded_string("File::Spec->catfile(\$FindBin::Bin, '$_')")
+            } @{$self->relative_lib_dirs}
+        ];
     }
 
     my $perl = render_mt('main_script', \%template_args);
@@ -73,6 +86,8 @@ sub write_script_file {
     my $fh = $self->out_filehandle;
     print $fh $perl;
     close($fh) || die sprintf("Couldn't close %s: %s\n", $self->scriptname, $!);
+
+    chmod(0755, $self->scriptname);
 }
 
 
@@ -98,9 +113,19 @@ __DATA__
 
 use strict;
 use warnings;
+use FindBin;
+use File::Spec;
 
 ? if ($_->{lib_dirs}) {
-use lib qw/<?= $_->{lib_dirs} ?>/;
+?   foreach my $dir (@{$_->{lib_dirs}}) {
+use lib '<?= $dir ?>';
+?   }
+? }
+
+? if ($_->{relative_lib_dirs}) {
+?   foreach my $dir (@{$_->{relative_lib_dirs}}) {
+use lib <?= $dir ?>;
+?   }
 ? }
 
 use Monorail;
@@ -117,7 +142,7 @@ unless ($valid_actions{$action}) {
 }
 
 my $monorail = Monorail->new(
-    basedir => '<?= $_->{basedir} ?>',
+    basedir => File::Spec->catfile($FindBin::Bin, '<?= $_->{basedir} ?>'),
     dbix    => <?= $_->{dbix_schema_class} ?>-><?= $_->{dbix_schema_connect_method} ?>('<?= $_->{dbix_schema_dsn} ?>'),
 );
 

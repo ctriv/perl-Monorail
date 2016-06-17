@@ -1,0 +1,46 @@
+#!/usr/bin/env perl
+
+use strict;
+use warnings;
+use Monorail::Bootstrapper;
+use Getopt::Long;
+use Pod::Usage;
+
+my %opts;
+GetOptions(\%opts,
+    'schema-class=s',
+    'scriptname=s',
+    'basedir=s',
+    'connect-method=s',
+    'schema-dsn=s',
+    'include=s@',
+    'include-relative=s@',
+    'perl=s',
+);
+
+foreach my $required (qw/schema-class schema-dsn/) {
+    next if $opts{$required};
+    pod2usage("$0: $required option is required");
+}
+
+my %bootargs = (
+    dbix_schema_class => $opts{'schema-class'},
+    dbix_schema_dsn   => $opts{'schema-dsn'},
+);
+
+my %optional_map = (
+    basedir                    => 'basedir',
+    scriptname                 => 'scriptname',
+    dbix_schema_connect_method => 'connect-method',
+    lib_dirs                   => 'include',
+    relative_lib_dirs          => 'include-relative',
+    perl                       => 'perl',
+);
+
+foreach my $arg (keys %optional_map) {
+    if (exists $opts{$optional_map{$arg}}) {
+        $bootargs{$arg} = $opts{$optional_map{$arg}};
+    }
+}
+
+Monorail::Bootstrapper->new(%bootargs)->write_script_file;
