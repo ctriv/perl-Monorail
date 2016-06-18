@@ -54,7 +54,7 @@ Monorail::MigrationScript
 
 =head1 DESCRIPTION
 
-A MigrationScript object represents a migration perl file from the basedir.  
+A MigrationScript object represents a migration perl file from the basedir.
 
 =cut
 

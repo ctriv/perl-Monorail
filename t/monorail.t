@@ -2,6 +2,7 @@
 
 use Test::Spec;
 use Test::Deep;
+use Test::Exception;
 
 use Monorail;
 use Path::Class;
@@ -207,7 +208,51 @@ describe 'A monorail object' => sub {
             like($out, qr/ALTER TABLE album ADD COLUMN producer text/);
         };
     };
- };
+
+
+    describe 'The detect db type role db_type method' => sub {
+        my ($dbix, $type);
+        before each => sub {
+            $sut->dbix->stubs(storage => stub(
+                dbh => sub {
+                    return {Driver => {Name => $type}}
+                }
+            ));
+        };
+
+        it 'translates postgresql correctly' => sub {
+            $type = 'Pg';
+
+            is($sut->db_type, 'PostgreSQL');
+        };
+
+        it 'translates mysql correctly' => sub {
+            $type = 'mysql';
+
+            is($sut->db_type, 'MySQL');
+        };
+
+        it 'translates Oracle correctly' => sub {
+            $type = 'Oracle';
+
+            is($sut->db_type, 'Oracle');
+        };
+
+        it 'translates SQLite correctly' => sub {
+            $type = 'SQLite';
+
+            is($sut->db_type, 'SQLite');
+        };
+
+        it 'dies on unknown database types' => sub {
+            $type = 'epcot';
+
+            dies_ok {
+                $sut->db_type;
+            };
+        }
+    };
+};
 
 
 runtests;

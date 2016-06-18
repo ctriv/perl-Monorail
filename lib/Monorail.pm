@@ -92,6 +92,20 @@ has dbix => (
     required => 1,
 );
 
+=head2 db_type
+
+A string representing the type of database we're connecting to.  By default this
+is dirived from the connection within C<dbix>.
+
+=cut
+
+has db_type => (
+    is      => 'ro',
+    isa     => 'Str',
+    lazy    => 1,
+    builder => '_build_db_type',
+);
+
 =head2 basedir
 
 The directory where our migration files live.  Required.
@@ -145,9 +159,6 @@ has quiet => (
     isa     => 'Bool',
     default => 0,
 );
-
-with 'Monorail::Role::DetectDbType';
-
 
 # ABSTRACT: Database migrations for DBIx::Class
 
@@ -345,6 +356,24 @@ sub _build_set_of_all_migrations {
     return Monorail::MigrationScript::Set->new(basedir => $self->basedir, dbix => $self->dbix);
 }
 
+{
+    my %sqlt_name_for = (
+        Pg     => 'PostgreSQL',
+        mysql  => 'MySQL',
+        SQLite => 'SQLite',
+        Oracle => 'Oracle',
+        Sybase => 'Sybase',
+    );
+
+    sub _build_db_type {
+        my ($self) = @_;
+
+        my $dbh      = $self->dbix->storage->dbh;
+        my $dbi_name = $dbh->{Driver}->{Name};
+
+        return $sqlt_name_for{$dbi_name} || die "Unsupported Database Type: $dbi_name\n";
+    }
+}
 
 sub _out {
     my ($self, $fmt, @args) = @_;
