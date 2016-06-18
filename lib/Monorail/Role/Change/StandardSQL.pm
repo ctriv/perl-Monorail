@@ -2,8 +2,6 @@ package Monorail::Role::Change::StandardSQL;
 
 use Moose::Role;
 use SQL::Translator;
-#use Sub::Install qw(install_stub reinstall_stub);
-#use namespace::autoclean;
 
 with 'Monorail::Role::Change';
 
