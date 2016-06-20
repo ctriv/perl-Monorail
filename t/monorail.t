@@ -49,8 +49,7 @@ describe 'A monorail object' => sub {
                 cmp_deeply(\%args, {
                     name          => '0003_auto',
                     basedir       => $sut->basedir,
-                    source_schema => ignore(),
-                    target_schema => ignore(),
+                    diff          => ignore(),
                     dependencies  => [qw/0002_auto/]
                 });
 
@@ -83,7 +82,7 @@ describe 'A monorail object' => sub {
         it 'builds a writer with the needed upwards change' => sub {
             Monorail::MigrationScript::Writer->expects('write_file')->returns(sub {
                 my ($self)  = @_;
-                my @changes = map { eval $_ } @{$self->upgrade_changes};
+                my @changes = map { eval $_ } @{$self->diff->upgrade_changes};
 
                 cmp_deeply(\@changes, [
                     all(

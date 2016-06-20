@@ -3,6 +3,7 @@ package Monorail;
 use Moose;
 
 use Monorail::MigrationScript::Writer;
+use Monorail::SQLTrans::Diff;
 use Monorail::Recorder;
 
 use SQL::Translator;
@@ -187,12 +188,16 @@ sub make_migration {
     my $schema_migrations = $self->_schema_from_current_migrations;
     my $schema_perl       = $self->_schema_from_dbix;
 
-    my $script = Monorail::MigrationScript::Writer->new(
-        name          => $name,
-        basedir       => $self->basedir,
+    my $diff   = Monorail::SQLTrans::Diff->new(
         source_schema => $schema_migrations,
         target_schema => $schema_perl,
-        dependencies  => [ map { $_->name } $self->all_migrations->current_dependencies ],
+    );
+
+    my $script = Monorail::MigrationScript::Writer->new(
+        name         => $name,
+        basedir      => $self->basedir,
+        diff         => $diff,
+        dependencies => [ map { $_->name } $self->all_migrations->current_dependencies ],
     );
 
     if ($script->write_file()) {
