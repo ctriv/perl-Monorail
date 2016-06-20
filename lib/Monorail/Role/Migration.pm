@@ -44,10 +44,10 @@ logical inverse of the upgrade_steps
 
 =back
 
-This results in a migration script that looks something like
+This results in a migration script that looks something like:
 
     use Moose;
-    with 'Monorail::Role::Migration'
+    with 'Monorail::Role::Migration';
 
     sub dependencies { return [qw/other migrations/]}
 
