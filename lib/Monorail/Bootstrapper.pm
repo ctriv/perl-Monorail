@@ -146,7 +146,7 @@ my $monorail = Monorail->new(
     dbix    => <?= $_->{dbix_schema_class} ?>-><?= $_->{dbix_schema_connect_method} ?>('<?= $_->{dbix_schema_dsn} ?>'),
 );
 
-$monorail->$action();
+$monorail->$action(@ARGV);
 
 sub usage {
     die "Usage <?= $_->{scriptname} ?>: <" . join('|', sort keys %valid_actions)  . ">\n";

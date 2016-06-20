@@ -1,6 +1,9 @@
-Wrap up all the missing changes.
-    Views.
-    Trigger.
+Get DROP VIEW into sql translator
+Get DROP TRIGGER into sql translator
+Get stored procedure support into sql translator
+Get view diffing into sql translator
+get trigger diffing into sql translator
+get stored proc diffing into sql translator
 
 Write some tests for the recent work on making renames more robust.
 
@@ -10,11 +13,6 @@ Finish POD.
 
 Figure out the bootstrapping system.  Users need a script and a way to add
 monorail to an existing project.
-
-Refactor the StandardSQL change role to get as_sql into the role, define
-producer method name and as_sql_trans_obj() in the class.
-
-Fix autogened subs to have names.
 
 Workaround how the SQLite producer really only works when you use
 batch_alter_table.  Use the ProducerProxy layer to hide this.
