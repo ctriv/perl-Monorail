@@ -51,6 +51,11 @@ has output_db => (
     default => 'Monorail',
 );
 
+sub has_changes {
+    my ($self) = @_;
+
+    return scalar @{$self->upgrade_changes};
+}
 
 sub _build_upgrade_changes {
     my ($self) = @_;

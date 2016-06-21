@@ -43,6 +43,7 @@ describe 'A sql translator differ' => sub {
             ]);
         };
     };
+
     describe 'downgrade_changes method' => sub {
         it 'returns a list of perl strings representing the changes' => sub {
             cmp_deeply($sut->downgrade_changes, [
@@ -51,6 +52,21 @@ describe 'A sql translator differ' => sub {
                     re(qr/name => ['"]epcot['"]/s)
                 )
             ]);
+        };
+    };
+
+    describe 'has_changes method' => sub {
+        it 'returns true when the diff object contains changes' => sub {
+            ok($sut->has_changes);
+        };
+
+        it 'returns false when the diff object contains no changes' => sub {
+            $sut = Monorail::SQLTrans::Diff->new(
+                source_schema => SQL::Translator::Schema->new(),
+                target_schema => SQL::Translator::Schema->new(),
+            );
+
+            ok(!$sut->has_changes);
         };
     };
 };

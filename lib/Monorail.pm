@@ -148,6 +148,21 @@ has all_migrations => (
     builder  => '_build_set_of_all_migrations',
 );
 
+
+=head2 current_diff
+
+A L<Monorail::SQLTrans::Diff> object representing the current difference
+between the DBIx::Class schema on disk and the sum of the current migrations.
+
+=cut
+
+has current_diff => (
+    is      => 'ro',
+    isa     => 'Monorail::SQLTrans::Diff',
+    lazy    => 1,
+    builder => '_build_current_diff',
+);
+
 =head2 quiet
 
 A boolean flag.  When true this module will print no informative messages to
@@ -183,15 +198,14 @@ unique name will be used - otherwise the given name is used.
 sub make_migration {
     my ($self, $name) = @_;
 
+    my $diff = $self->current_diff;
+
+    unless ($diff->has_changes) {
+        $self->_out("No changes detected.\n");
+        return;
+    }
+
     $name ||= $self->all_migrations->next_auto_name;
-
-    my $schema_migrations = $self->_schema_from_current_migrations;
-    my $schema_perl       = $self->_schema_from_dbix;
-
-    my $diff   = Monorail::SQLTrans::Diff->new(
-        source_schema => $schema_migrations,
-        target_schema => $schema_perl,
-    );
 
     my $script = Monorail::MigrationScript::Writer->new(
         name         => $name,
@@ -200,16 +214,22 @@ sub make_migration {
         dependencies => [ map { $_->name } $self->all_migrations->current_dependencies ],
     );
 
-    if ($script->write_file()) {
-        $self->_out("Created $name.\n");
-    }
-    else {
-        $self->_out("No changes detected.\n");
-    }
+    $script->write_file;
+
+    $self->_out("Created $name.\n");
 
     return 1;
 }
 
+
+sub _build_current_diff {
+    my ($self) = @_;
+
+    return Monorail::SQLTrans::Diff->new(
+        source_schema => $self->_schema_from_current_migrations,
+        target_schema => $self->_schema_from_dbix,
+    );
+}
 
 sub _schema_from_current_migrations {
     my ($self) = @_;

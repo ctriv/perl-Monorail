@@ -69,8 +69,6 @@ sub write_file {
     my $dependencies    = join('  ', @{$self->dependencies});
     my $upgrade_changes = $self->diff->upgrade_changes;
 
-    return 0 unless @$upgrade_changes;
-
     my $downgrade_changes = $self->diff->downgrade_changes;
 
     my $perl = render_mt('migration_script', {
@@ -84,8 +82,6 @@ sub write_file {
 
     print $fh $perl;
     close($fh) || die "Couldn't close $filename: $!\n";
-
-    return 1;
 }
 
 
