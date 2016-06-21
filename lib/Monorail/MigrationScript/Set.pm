@@ -111,7 +111,7 @@ sub _build_filelist {
 
     my @scripts;
     while (my $file = $dir->next) {
-        next unless -f $file;
+        next unless -f $file && $file =~ m/\.pl$/;
         push(@scripts, $file->stringify);
     }
 
