@@ -155,12 +155,12 @@ sub _add_reversed_rename_mappings {
                 }
             }
 
-            foreach my $field ($table->get_fields) {
+            FIELD: foreach my $field ($table->get_fields) {
                 my $renamed_from = $field->extra('renamed_from');
 
                 next unless $renamed_from;
 
-                my $other_table = $to_tables{$table->extra('renamed_from') || $table->name};
+                my $other_table = $to_tables{$table->extra('renamed_from') || $table->name} || next FIELD;
                 if (!$other_table->get_field($renamed_from)) {
                     $field->remove_extra('renamed_from');
                 }

@@ -5,14 +5,9 @@ Get view diffing into sql translator
 get trigger diffing into sql translator
 get stored proc diffing into sql translator
 
-Write some tests for the recent work on making renames more robust.
-
 Migration squashing.  (maybe...)
 
 Finish POD.
 
 Figure out the bootstrapping system.  Users need a script and a way to add
 monorail to an existing project.
-
-Workaround how the SQLite producer really only works when you use
-batch_alter_table.  Use the ProducerProxy layer to hide this.
