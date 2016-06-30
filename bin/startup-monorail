@@ -6,6 +6,45 @@ use Monorail::Bootstrapper;
 use Getopt::Long;
 use Pod::Usage;
 
+=head1 NAME
+
+startup-monorail - Configure monorail for your project
+
+=head1 SYNOPSIS
+
+startup-monorail [options]
+
+ Options:
+   --schema-class   The classname for your DBIx::Class schema.  Required.
+   --schema-dsn     The DBI dsn passed to the connect method.  Required.
+   --scriptname     The name of the script to be generated.  Optional.
+   --basedir        The name of the directory were the migrations live. Optional.
+   --connect-method The method name used to connect the schema.  Optional.
+   --include        One or more dirs to add to @INC. Optional.
+   --include-relative One or more relative paths to add to @INC.  Optional.
+   --perl           The perl executable which is to run the monorail script. Optional.
+
+=head1 OPTIONS
+
+=over 4
+
+=item B<-help>
+
+Print a brief help message and exits.
+
+=item B<-man>
+
+Prints the manual page and exits.
+
+=back
+
+=head1 DESCRIPTION
+
+B<This program> will read the given input file(s) and do something
+useful with the contents thereof.
+
+=cut
+
 my %opts;
 GetOptions(\%opts,
     'schema-class=s',

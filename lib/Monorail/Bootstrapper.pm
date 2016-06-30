@@ -4,6 +4,8 @@ use Moose;
 use Config;
 use Text::MicroTemplate::DataSection qw(render_mt);
 use Text::MicroTemplate qw(encoded_string);
+use File::Path qw(make_path);
+
 use namespace::autoclean;
 
 has basedir => (
@@ -58,6 +60,12 @@ has perl => (
     isa     => 'Str',
     default => $Config{perlpath},
 );
+
+sub make_basedir {
+    my ($self) = @_;
+
+    make_path($self->basedir);
+}
 
 sub write_script_file {
     my ($self) = @_;
