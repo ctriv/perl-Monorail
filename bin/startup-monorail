@@ -40,8 +40,9 @@ Prints the manual page and exits.
 
 =head1 DESCRIPTION
 
-B<This program> will read the given input file(s) and do something
-useful with the contents thereof.
+startup-monorail tries to generate a monorail script for use with your
+DBIx::Class based project.  It is early alpha code, and the resulting script
+will likely require manual tweaks.
 
 =cut
 

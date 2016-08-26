@@ -10,6 +10,8 @@ version 0.1
 
 =head1 SYNOPSIS
 
+
+    startup-monorail
    ./monorail.pl make_migration
    ./monorail.pl migrate
 
@@ -79,6 +81,11 @@ database we're updating.
 
 Required.
 
+=head2 db_type
+
+A string representing the type of database we're connecting to.  By default this
+is dirived from the connection within C<dbix>.
+
 =head2 basedir
 
 The directory where our migration files live.  Required.
@@ -92,6 +99,11 @@ as discussed above.
 
 A L<Monorail::MigrationScript::Set> object representing all the migrations
 that currently exist in the basedir.
+
+=head2 current_diff
+
+A L<Monorail::SQLTrans::Diff> object representing the current difference
+between the DBIx::Class schema on disk and the sum of the current migrations.
 
 =head2 quiet
 

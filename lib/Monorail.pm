@@ -16,6 +16,8 @@ Monorail - Database Migrations
 
 =head1 SYNOPSIS
 
+
+    startup-monorail
    ./monorail.pl make_migration
    ./monorail.pl migrate
 
