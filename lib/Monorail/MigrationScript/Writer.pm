@@ -27,7 +27,7 @@ has dependencies => (
 
 has diff => (
     is       => 'ro',
-    isa      => 'Monorail::SQLTrans::Diff',
+    isa      => 'Monorail::Diff',
     required => 1,
 );
 

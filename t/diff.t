@@ -1,7 +1,7 @@
 #!perl
 
 use Test::Spec;
-use Monorail::SQLTrans::Diff;
+use Monorail::Diff;
 use SQL::Translator::Schema;
 
 describe 'A sql translator differ' => sub {
@@ -13,7 +13,7 @@ describe 'A sql translator differ' => sub {
 
         $s2->add_table(name => 'epcot');
 
-        $sut = Monorail::SQLTrans::Diff->new(
+        $sut = Monorail::Diff->new(
             source_schema  => $s1,
             target_schema  => $s2,
         );
@@ -61,7 +61,7 @@ describe 'A sql translator differ' => sub {
         };
 
         it 'returns false when the diff object contains no changes' => sub {
-            $sut = Monorail::SQLTrans::Diff->new(
+            $sut = Monorail::Diff->new(
                 source_schema => SQL::Translator::Schema->new(),
                 target_schema => SQL::Translator::Schema->new(),
             );

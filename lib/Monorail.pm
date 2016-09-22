@@ -3,7 +3,7 @@ package Monorail;
 use Moose;
 
 use Monorail::MigrationScript::Writer;
-use Monorail::SQLTrans::Diff;
+use Monorail::Diff;
 use Monorail::Recorder;
 
 use SQL::Translator;
@@ -153,14 +153,14 @@ has all_migrations => (
 
 =head2 current_diff
 
-A L<Monorail::SQLTrans::Diff> object representing the current difference
+A L<Monorail::Diff> object representing the current difference
 between the DBIx::Class schema on disk and the sum of the current migrations.
 
 =cut
 
 has current_diff => (
     is      => 'ro',
-    isa     => 'Monorail::SQLTrans::Diff',
+    isa     => 'Monorail::Diff',
     lazy    => 1,
     builder => '_build_current_diff',
 );
@@ -227,7 +227,7 @@ sub make_migration {
 sub _build_current_diff {
     my ($self) = @_;
 
-    return Monorail::SQLTrans::Diff->new(
+    return Monorail::Diff->new(
         source_schema => $self->_schema_from_current_migrations,
         target_schema => $self->_schema_from_dbix,
     );

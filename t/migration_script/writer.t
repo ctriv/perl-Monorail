@@ -3,7 +3,7 @@
 use Test::Spec;
 
 use Monorail::MigrationScript::Writer;
-use Monorail::SQLTrans::Diff;
+use Monorail::Diff;
 
 use SQL::Translator::Schema;
 use Test::Deep;
@@ -19,7 +19,7 @@ describe "A monorail migration script writer" => sub {
 
         open(my $output_fh, ">", \$output);
 
-        my $diff = Monorail::SQLTrans::Diff->new(
+        my $diff = Monorail::Diff->new(
             source_schema  => $s1,
             target_schema  => $s2,
         );

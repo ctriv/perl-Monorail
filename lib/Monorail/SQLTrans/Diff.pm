@@ -1,182 +1,184 @@
 package Monorail::SQLTrans::Diff;
 
 use Moose;
-use namespace::autoclean;
-use Clone qw(clone);
-use SQL::Translator::Diff;
 
-has source_schema => (
-    is       => 'ro',
-    isa      => 'SQL::Translator::Schema',
-    required => 1,
-);
+extends 'SQL::Translator::Diff';
 
-has target_schema => (
-    is       => 'ro',
-    isa      => 'SQL::Translator::Schema',
-    required => 1,
-);
-
-has upgrade_changes => (
-    is      => 'ro',
-    isa     => 'ArrayRef',
+has procedures_to_create => (
+    is      => 'rw',
     lazy    => 1,
-    builder => '_build_upgrade_changes',
+    default => sub { [] },
 );
-
-has downgrade_changes => (
-    is      => 'ro',
-    isa     => 'ArrayRef',
+has procedures_to_drop => (
+    is      => 'rw',
     lazy    => 1,
-    builder => '_build_downgrade_changes',
+    default => sub { [] },
 );
-
-has forward_diff => (
-    is      => 'ro',
-    isa     => 'SQL::Translator::Diff',
+has procedures_to_alter => (
+    is      => 'rw',
     lazy    => 1,
-    builder => '_build_forward_diff'
+    default => sub { [] }
 );
-
-has reversed_diff => (
-    is      => 'ro',
-    isa     => 'SQL::Translator::Diff',
+has views_to_create => (
+    is      => 'rw',
     lazy    => 1,
-    builder => '_build_reversed_diff'
+    default => sub { [] },
+);
+has views_to_drop => (
+    is      => 'rw',
+    lazy    => 1,
+    default => sub { [] },
+);
+has views_to_alter => (
+    is      => 'rw',
+    lazy    => 1,
+    default => sub { [] },
 );
 
-has output_db => (
-    is      => 'ro',
-    isa     => 'Str',
-    default => 'Monorail',
-);
-
-sub has_changes {
+after compute_differences => sub {
     my ($self) = @_;
 
-    return scalar @{$self->upgrade_changes};
-}
+    $self->_compute_procedure_differences();
+    $self->_compute_view_differences();
+};
 
-sub _build_upgrade_changes {
+sub _compute_procedure_differences {
     my ($self) = @_;
 
-    my @changes = $self->forward_diff->produce_diff_sql;
-    @changes    = $self->_munge_changes_strings(@changes);
+    my $target_schema = $self->target_schema;
+    my $source_schema = $self->source_schema;
 
-    return \@changes;
-}
+    my %src_procs_checked = ();
+    my @target_procs = sort { $a->name cmp $b->name } $target_schema->get_procedures;
+    ## do original/source procs exist in target?
+    foreach my $target_proc (@target_procs) {
+        my $source_proc = $source_schema->get_procedure($target_proc->name);
 
-sub _build_downgrade_changes {
-    my ($self) = @_;
-
-    #use Data::Dumper;
-    #die Dumper($self->reversed_diff);
-
-    my @changes = $self->reversed_diff->produce_diff_sql;
-    @changes    = $self->_munge_changes_strings(@changes);
-
-    return \@changes;
-}
-
-sub _munge_changes_strings {
-    my ($self, @changes) = @_;
-
-    @changes = grep { m/^Monorail::/ } @changes;
-    for (@changes) {
-        s/;\s+$//s;
-        s/^/        /mg;
-    }
-
-    return @changes;
-}
-
-sub _build_forward_diff {
-    my ($self) = @_;
-
-    my $src = clone($self->source_schema);
-    my $tar = clone($self->target_schema);
-
-    $self->_strip_irrelevent_rename_mappings($src, $tar);
-
-    return SQL::Translator::Diff->new({
-        output_db              => $self->output_db,
-        source_schema          => $src,
-        target_schema          => $tar,
-    })->compute_differences;
-}
-
-sub _build_reversed_diff {
-    my ($self) = @_;
-
-    my $src = clone($self->source_schema);
-    my $tar = clone($self->target_schema);
-
-    $self->_strip_irrelevent_rename_mappings($src, $tar);
-    $self->_add_reversed_rename_mappings($src, $tar);
-
-    return SQL::Translator::Diff->new({
-        output_db     => $self->output_db,
-        # note these are reversed
-        source_schema => $tar,
-        target_schema => $src,
-    })->compute_differences;
-}
-
-
-sub _add_reversed_rename_mappings {
-    my ($self, $from, $to) = @_;
-
-    foreach my $table ($to->get_tables) {
-        if (my $old_name = $table->extra('renamed_from')) {
-            my $old_table = $from->get_table($old_name);
-            $old_table->extra(renamed_from => $table->name);
-
-            foreach my $field ($table->get_fields) {
-                if (my $old_field_name = $field->extra('renamed_from')) {
-                    my $old_field = $old_table->get_field($old_field_name);
-                    $old_field->extra(renamed_from => $field->name);
-                }
-            }
-
+        if (!$source_proc) {
+            ## function is new
+            push(@{$self->procedures_to_create}, $target_proc);
+        }
+        elsif (!$source_proc->equals($target_proc)) {
+            ## the fucntion has changed
+            push(@{$self->procedures_to_alter}, $target_proc);
         }
     }
-}
 
-{
-    my $do_strip = sub {
-        my ($from, $to) = @_;
+    foreach my $source_proc ($source_schema->get_procedures) {
+        my $target_proc = $target_schema->get_procedure($source_proc->name);
 
-        my %to_tables = map { $_->name => $_ } $to->get_tables;
+        unless ($target_proc) {
 
-        foreach my $table ($from->get_tables) {
-            if (my $old_name = $table->extra('renamed_from')) {
-                if (!$to_tables{$old_name}) {
-                    $table->remove_extra('renamed_from');
-                }
-            }
-
-            FIELD: foreach my $field ($table->get_fields) {
-                my $renamed_from = $field->extra('renamed_from');
-
-                next unless $renamed_from;
-
-                my $other_table = $to_tables{$table->extra('renamed_from') || $table->name} || next FIELD;
-                if (!$other_table->get_field($renamed_from)) {
-                    $field->remove_extra('renamed_from');
-                }
-            }
+            # the function no longer exists
+            push(@{$self->procedures_to_drop}, $source_proc);
         }
-    };
-
-    sub _strip_irrelevent_rename_mappings {
-        my ($self, $from_schema, $to_schema) = @_;
-
-        $do_strip->($from_schema, $to_schema);
-        $do_strip->($to_schema,   $from_schema);
     }
+
+    return $self;
 }
 
-__PACKAGE__->meta->make_immutable;
+sub _compute_view_differences {
+    my ($self) = @_;
+
+    my $target_schema = $self->target_schema;
+    my $source_schema = $self->source_schema;
+
+    my %src_procs_checked = ();
+    my @target_views = sort { $a->name cmp $b->name } $target_schema->get_views;
+    ## do original/source procs exist in target?
+    foreach my $target_view (@target_views) {
+        my $source_view = $source_schema->get_view($target_view->name);
+
+        if (!$source_view) {
+            ## view is new
+            push(@{$self->views_to_create}, $target_view);
+        }
+        elsif (!$source_view->equals($target_view)) {
+            ## the view has changed
+            push(@{$self->views_to_alter}, $target_view);
+        }
+    }
+
+    foreach my $source_view ($source_schema->get_views) {
+        my $target_view = $target_schema->get_view($source_view->name);
+
+        unless ($target_view) {
+
+            # the view no longer exists
+            push(@{$self->views_to_drop}, $source_view);
+        }
+    }
+
+    return $self;
+}
+
+around produce_diff_sql => sub {
+    my $orig = shift;
+    my $self = shift;
+
+    my @output = $self->$orig();
+
+    my $producer_class = "SQL::Translator::Producer::@{[$self->output_db]}";
+
+    unshift(@output, $self->_procedure_diff_sql($producer_class));
+    push(@output, $self->_view_diff_sql($producer_class));
+
+    return @output;
+};
+
+
+sub _procedure_diff_sql {
+    my ($self, $producer) = @_;
+
+    my @diff;
+
+    my $create = $producer->can('create_procedure');
+    my $alter  = $producer->can('alter_procedure');
+    my $drop   = $producer->can('drop_procedure');
+
+    return unless $create && $alter && $drop;
+
+    foreach my $proc (@{$self->procedures_to_create}) {
+        push(@diff, $create->($proc));
+    }
+
+    foreach my $proc (@{$self->procedures_to_alter}) {
+        push(@diff, $alter->($proc));
+    }
+
+    foreach my $proc (@{$self->procedures_to_drop}) {
+        push(@diff, $drop->($proc));
+    }
+
+    return @diff;
+}
+
+
+sub _view_diff_sql {
+    my ($self, $producer) = @_;
+
+    my @diff;
+
+    my $create = $producer->can('create_view');
+    my $alter  = $producer->can('alter_view');
+    my $drop   = $producer->can('drop_view');
+
+    return unless $create && $alter && $drop;
+
+    foreach my $view (@{$self->views_to_create}) {
+        push(@diff, $create->($view, { no_comments => 1 }));
+    }
+
+    foreach my $view (@{$self->views_to_alter}) {
+        push(@diff, $alter->($view));
+    }
+
+    foreach my $view (@{$self->views_to_drop}) {
+        push(@diff, $drop->($view));
+    }
+
+    return @diff;
+}
+
 
 1;
-__END__

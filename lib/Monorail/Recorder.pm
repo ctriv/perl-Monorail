@@ -3,7 +3,7 @@ package Monorail::Recorder;
 use Moose;
 use DBIx::Class::Schema;
 use SQL::Translator;
-use SQL::Translator::Diff;
+use Monorail::SQLTrans::Diff;
 
 our $TableName = 'monorail_deployed_migrations';
 

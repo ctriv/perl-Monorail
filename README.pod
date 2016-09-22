@@ -102,7 +102,7 @@ that currently exist in the basedir.
 
 =head2 current_diff
 
-A L<Monorail::SQLTrans::Diff> object representing the current difference
+A L<Monorail::Diff> object representing the current difference
 between the DBIx::Class schema on disk and the sum of the current migrations.
 
 =head2 quiet
