@@ -243,8 +243,25 @@ sub rename_table {
         from => $old_table->name,
         to   => $new_table->name,
     )->as_perl;
- }
+}
 
+sub create_view {
+    my ($view, $args) = @_;
+
+    return Monorail::Change::CreateView->new(
+        name   => $view->name,
+        fields => scalar $view->fields,
+        sql    => $view->sql,
+    )->as_perl;
+}
+
+sub alter_view {
+    die "Not implementated\n";
+}
+
+sub drop_view {
+    die "Not implementated\n";
+}
 
 1;
 __END__

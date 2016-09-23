@@ -18,10 +18,14 @@ has producer_class => (
 );
 
 
+my %overrides = (
+    PostgreSQL => 'Monorail::SQLTrans::Producer::PostgreSQL',
+);
+
 sub _build_producer_class {
     my ($self) = @_;
 
-    my $class = 'SQL::Translator::Producer::' . $self->db_type;
+    my $class = $overrides{$self->db_type} || 'SQL::Translator::Producer::' . $self->db_type;
 
     require_module($class);
 
@@ -31,6 +35,7 @@ sub _build_producer_class {
 my @methods = qw/
     add_field create_table drop_field drop_table alter_field
     alter_create_constraint alter_drop_constraint alter_create_index rename_table
+    create_view
 /;
 
 foreach my $meth (@methods) {

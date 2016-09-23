@@ -43,6 +43,27 @@ describe 'The monorail sql translator producer' => sub {
         };
     };
 
+    describe 'the create_view method' => sub {
+        it 'should return a perl string for a CreateView change' => sub {
+            my %args = (
+                name   => 'epcot',
+                fields => [qw/ride year_built/],
+                sql    => q/select ride, year_built from rides where park='epcot'/,
+            );
+
+            my $sqlt = SQL::Translator::Schema::View->new(%args);
+
+            my $perl = SQL::Translator::Producer::Monorail::create_view($sqlt);
+
+            my $change = eval $perl;
+
+            cmp_deeply($change, all(
+                isa('Monorail::Change::CreateView'),
+                methods(%args)
+            ));
+        };
+    };
+
     describe 'the alter_create_constraint method' => sub {
         it 'should return a perl string for a CreateConstraint change' => sub {
             my $table = SQL::Translator::Schema::Table->new(
