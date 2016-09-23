@@ -348,6 +348,25 @@ describe 'The monorail sql translator producer' => sub {
         };
     };
 
+    describe 'the drop_view method' => sub {
+        it 'should return a perl string for a DropView change' => sub {
+            my $view = SQL::Translator::Schema::View->new(
+                name => 'epcot'
+            );
+
+            my $perl = SQL::Translator::Producer::Monorail::drop_view($view);
+
+            my $change = eval $perl;
+
+            cmp_deeply($change, all(
+                isa('Monorail::Change::DropView'),
+                methods(
+                    name => 'epcot',
+                ),
+            ));
+        };
+    };
+
     describe 'the produce method' => sub {
         it 'should return a perl string that represents the given schema' => sub {
             my $table = SQL::Translator::Schema::Table->new(

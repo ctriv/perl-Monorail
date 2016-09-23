@@ -256,11 +256,15 @@ sub create_view {
 }
 
 sub alter_view {
-    die "Not implementated\n";
+    die "alter view is not implementated\n";
 }
 
 sub drop_view {
-    die "Not implementated\n";
+    my ($view, $args) = @_;
+
+    return Monorail::Change::DropView->new(
+        name => $view->name,
+    )->as_perl;
 }
 
 1;

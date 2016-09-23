@@ -85,6 +85,7 @@ sub _compute_view_differences {
 
     my %src_procs_checked = ();
     my @target_views = sort { $a->name cmp $b->name } $target_schema->get_views;
+
     ## do original/source procs exist in target?
     foreach my $target_view (@target_views) {
         my $source_view = $source_schema->get_view($target_view->name);
