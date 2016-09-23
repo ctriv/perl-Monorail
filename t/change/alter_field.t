@@ -4,9 +4,6 @@ use Test::Spec;
 use Test::Deep;
 use Monorail::Change::AlterField;
 use Monorail::Change::CreateTable;
-use DBI;
-use DBD::SQLite;
-use DBIx::Class::Schema;
 
 describe 'An alter field change' => sub {
     my $sut;

@@ -3,9 +3,6 @@
 use Test::Spec;
 use Test::Deep;
 use Monorail::Change::CreateTable;
-use DBI;
-use DBD::SQLite;
-use DBIx::Class::Schema;
 
 describe 'An create table change' => sub {
     my $sut;

@@ -4,9 +4,6 @@ use Test::Spec;
 use Test::Deep;
 use Monorail::Change::CreateConstraint;
 use Monorail::Change::CreateTable;
-use DBI;
-use DBD::SQLite;
-use DBIx::Class::Schema;
 
 describe 'An create constraint change' => sub {
     my $sut;

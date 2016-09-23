@@ -4,9 +4,6 @@ use Test::Spec;
 use Test::Deep;
 use Monorail::Change::RenameTable;
 use Monorail::Change::CreateTable;
-use DBI;
-use DBD::SQLite;
-use DBIx::Class::Schema;
 
 describe 'An add field change' => sub {
     my $sut;
