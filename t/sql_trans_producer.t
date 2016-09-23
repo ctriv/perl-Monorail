@@ -367,6 +367,28 @@ describe 'The monorail sql translator producer' => sub {
         };
     };
 
+
+    describe 'the alter_view method' => sub {
+        it 'should return a perl string for a AlterView change' => sub {
+            my %args = (
+                name   => 'epcot',
+                fields => [qw/ride year_built/],
+                sql    => q/select ride, year_built from rides where park='epcot'/,
+            );
+
+            my $sqlt = SQL::Translator::Schema::View->new(%args);
+
+            my $perl = SQL::Translator::Producer::Monorail::alter_view($sqlt);
+
+            my $change = eval $perl;
+
+            cmp_deeply($change, all(
+                isa('Monorail::Change::AlterView'),
+                methods(%args)
+            ));
+        };
+    };
+
     describe 'the produce method' => sub {
         it 'should return a perl string that represents the given schema' => sub {
             my $table = SQL::Translator::Schema::Table->new(

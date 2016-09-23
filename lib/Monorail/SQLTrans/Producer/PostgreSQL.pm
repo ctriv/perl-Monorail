@@ -15,7 +15,7 @@ sub alter_view {
 
     my $sql = SQL::Translator::Producer::PostgreSQL::create_view($view, \%options);
 
-    $sql =~ s/^CREATE/CREATE OR REPLACE/;
+    $sql =~ s/^CREATE/CREATE OR REPLACE/m;
 
     return $sql;
 }

@@ -256,7 +256,13 @@ sub create_view {
 }
 
 sub alter_view {
-    die "alter view is not implementated\n";
+    my ($view, $args) = @_;
+
+    return Monorail::Change::AlterView->new(
+        name   => $view->name,
+        fields => scalar $view->fields,
+        sql    => $view->sql,
+    )->as_perl;
 }
 
 sub drop_view {

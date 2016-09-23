@@ -2,9 +2,9 @@
 
 use Test::Spec;
 use Test::Deep;
-use Monorail::Change::CreateView;
+use Monorail::Change::AlterView;
 
-describe 'A create view change' => sub {
+describe 'An alter view change' => sub {
     my $sut;
     my %sut_args;
     before each => sub {
@@ -13,13 +13,13 @@ describe 'A create view change' => sub {
             fields => [qw/ride wait_time/],
             sql    => q/select ride, wait_time from rides where park='epcot'/,
         );
-        $sut = Monorail::Change::CreateView->new(%sut_args);
+        $sut = Monorail::Change::AlterView->new(%sut_args);
         $sut->db_type('PostgreSQL');
     };
 
     it 'produces valid sql' => sub {
         my @sql = $sut->as_sql;
-        like($sql[0], qr/CREATE VIEW epcot\s+\(\s+ride/si);
+        like($sql[0], qr/CREATE OR REPLACE VIEW epcot\s+\(\s+ride/si);
         like($sql[0], qr/$sut_args{sql}/si);
     };
 
@@ -28,13 +28,19 @@ describe 'A create view change' => sub {
 
         my $new = eval $perl;
         cmp_deeply($new, all(
-            isa('Monorail::Change::CreateView'),
+            isa('Monorail::Change::AlterView'),
             methods(%sut_args),
         ));
     };
 
     it 'transforms a schema' => sub {
         my $schema = SQL::Translator::Schema->new;
+        $schema->add_view(
+            name   => 'epcot',
+            fields => [qw/ride wait_time/],
+            sql    => q/select ride, wait_time from rides where park_name='epcot'/,
+        );
+
         $sut->transform_schema($schema);
 
         cmp_deeply(
