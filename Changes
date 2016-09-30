@@ -1,9 +1,10 @@
 Revision history for Monorail
 
 {{$NEXT}}
+    Preliminary support for stored procedures, (PostgreSQL only).
 
 0.2 Fri Sep 23 2016
-    Preliminary support for views (PostgresQL only). 
+    Preliminary support for views (PostgresQL only).
 
 0.1 Fri Aug 26 2016
     Initial Release.
