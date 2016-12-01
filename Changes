@@ -1,6 +1,8 @@
 Revision history for Monorail
 
 {{$NEXT}}
+
+0.3 Thu Dec 01 2016
     Fix bug where initial migrations would fail under postgres.
 
 0.2 Fri Sep 23 2016
