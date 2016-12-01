@@ -273,34 +273,5 @@ sub drop_view {
     )->as_perl;
 }
 
-sub create_procedure {
-    my ($proc, $args) = @_;
-
-    return Monorail::Change::CreateProcedure->new(
-        name       => $proc->name,
-        parameters => scalar $proc->parameters,
-        sql        => $proc->sql
-    )->as_perl;
-}
-
-sub alter_procedure {
-    my ($proc, $args) = @_;
-
-    return Monorail::Change::AlterProcedure->new(
-        name       => $proc->name,
-        parameters => scalar $proc->parameters,
-        sql        => $proc->sql
-    )->as_perl;
-}
-
-sub drop_procedure {
-    my ($proc, $args) = @_;
-
-    return Monorail::Change::DropProcedure->new(
-        name       => $proc->name,
-        parameters => scalar $proc->parameters,
-    )->as_perl;
-}
-
 1;
 __END__

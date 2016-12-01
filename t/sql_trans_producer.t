@@ -461,68 +461,6 @@ describe 'The monorail sql translator producer' => sub {
             );
         };
     };
-
-    describe 'the create_procedure method' => sub {
-        it 'should return a perl string for a CreateProcedure change' => sub {
-            my %args = (
-                name       => 'epcot',
-                parameters => [],
-                sql        => q/select ride, year_built from rides where park='epcot'/,
-            );
-
-            my $sqlt = SQL::Translator::Schema::Procedure->new(%args);
-
-            my $perl = SQL::Translator::Producer::Monorail::create_procedure($sqlt);
-
-            my $change = eval $perl;
-
-            cmp_deeply($change, all(
-                isa('Monorail::Change::CreateProcedure'),
-                methods(%args)
-            ));
-        };
-    };
-
-    describe 'the alter_procedure method' => sub {
-        it 'should return a perl string for a AlterProcedure change' => sub {
-            my %args = (
-                name       => 'epcot',
-                parameters => [],
-                sql        => q/select ride, year_built from rides where park='epcot'/,
-            );
-
-            my $sqlt = SQL::Translator::Schema::Procedure->new(%args);
-
-            my $perl = SQL::Translator::Producer::Monorail::alter_procedure($sqlt);
-
-            my $change = eval $perl;
-
-            cmp_deeply($change, all(
-                isa('Monorail::Change::AlterProcedure'),
-                methods(%args)
-            ));
-        };
-    };
-
-    describe 'the drop_procedure method' => sub {
-        it 'should return a perl string for a DropProcedure change' => sub {
-            my %args = (
-                name      => 'epcot',
-                parameters => [],
-            );
-
-            my $sqlt = SQL::Translator::Schema::Procedure->new(%args);
-
-            my $perl = SQL::Translator::Producer::Monorail::drop_procedure($sqlt);
-
-            my $change = eval $perl;
-
-            cmp_deeply($change, all(
-                isa('Monorail::Change::DropProcedure'),
-                methods(%args)
-            ));
-        };
-    };
 };
 
 runtests;

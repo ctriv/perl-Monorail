@@ -35,7 +35,7 @@ sub _build_producer_class {
 my @methods = qw/
     add_field create_table drop_field drop_table alter_field
     alter_create_constraint alter_drop_constraint alter_create_index rename_table
-    create_view drop_view alter_view create_procedure alter_procedure drop_procedure
+    create_view drop_view alter_view
 /;
 
 foreach my $meth (@methods) {
