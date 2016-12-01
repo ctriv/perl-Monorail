@@ -76,11 +76,18 @@ sub _ensure_our_table {
 
     return if $self->_table_is_present;
 
-    my $has_table = eval { $self->version_resultset->first; 1 };
+    $self->protodbix->txn_do(sub {
+        $self->protodbix->storage->ensure_connected;
+        $self->protodbix->svp_begin;
 
-    if (!$has_table) {
-        $self->protodbix->deploy;
-    }
+        my $has_table = eval { $self->version_resultset->first; 1 };
+
+        $self->protodbix->svp_rollback;
+
+        if (!$has_table) {
+            $self->protodbix->deploy;
+        }
+    });
 
     $self->_table_is_present(1);
 }
