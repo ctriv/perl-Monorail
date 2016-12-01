@@ -12,7 +12,7 @@ describe 'A Monorail ProducerProxy object' => sub {
     it 'loads the default sql producer on demand' => sub {
         $sut->producer_class;
 
-        ok($INC{'SQL/Translator/Producer/PostgreSQL.pm'});
+        ok($INC{'Monorail/SQLTrans/Producer/PostgreSQL.pm'});
     };
 
     it 'loads another producer if you ask it to' => sub {
@@ -22,19 +22,20 @@ describe 'A Monorail ProducerProxy object' => sub {
     };
 
     my @methods = qw/add_field create_table drop_field drop_table alter_field
-    alter_create_constraint alter_drop_constraint alter_create_index/;
+    alter_create_constraint alter_drop_constraint alter_create_index create_procedure
+    create_view alter_view drop_view create_procedure alter_procedure drop_procedure/;
 
     foreach my $method (@methods) {
         describe "$method method" => sub {
             it "calls $method on the producer" => sub {
-                my $called = SQL::Translator::Producer::PostgreSQL->expects($method)->once;
+                my $called = Monorail::SQLTrans::Producer::PostgreSQL->expects($method)->once;
 
                 $sut->$method;
                 ok($called->verify);
             };
 
             it 'passes arguments' => sub {
-                my $called = SQL::Translator::Producer::PostgreSQL->expects($method)->with('epcot');
+                my $called = Monorail::SQLTrans::Producer::PostgreSQL->expects($method)->with('epcot');
                 $sut->$method('We pass a string here cause Test::Spec only understands methods...', 'epcot');
                 ok($called->verify);
             };
