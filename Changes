@@ -1,7 +1,7 @@
 Revision history for Monorail
 
 {{$NEXT}}
-    Preliminary support for stored procedures, (PostgreSQL only).
+    Fix bug where initial migrations would fail under postgres.
 
 0.2 Fri Sep 23 2016
     Preliminary support for views (PostgresQL only).
