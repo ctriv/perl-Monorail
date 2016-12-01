@@ -34,12 +34,29 @@ has views_to_alter => (
     lazy    => 1,
     default => sub { [] },
 );
+has triggers_to_create => (
+    is      => 'rw',
+    lazy    => 1,
+    default => sub { [] },
+);
+has triggers_to_drop => (
+    is      => 'rw',
+    lazy    => 1,
+    default => sub { [] },
+);
+has triggers_to_alter => (
+    is      => 'rw',
+    lazy    => 1,
+    default => sub { [] },
+);
+
 
 after compute_differences => sub {
     my ($self) = @_;
 
     $self->_compute_procedure_differences();
     $self->_compute_view_differences();
+    $self->_compute_trigger_differences();
 };
 
 sub _compute_procedure_differences {
@@ -48,7 +65,6 @@ sub _compute_procedure_differences {
     my $target_schema = $self->target_schema;
     my $source_schema = $self->source_schema;
 
-    my %src_procs_checked = ();
     my @target_procs = sort { $a->name cmp $b->name } $target_schema->get_procedures;
     ## do original/source procs exist in target?
     foreach my $target_proc (@target_procs) {
@@ -83,7 +99,6 @@ sub _compute_view_differences {
     my $target_schema = $self->target_schema;
     my $source_schema = $self->source_schema;
 
-    my %src_procs_checked = ();
     my @target_views = sort { $a->name cmp $b->name } $target_schema->get_views;
 
     ## do original/source procs exist in target?
@@ -107,6 +122,41 @@ sub _compute_view_differences {
 
             # the view no longer exists
             push(@{$self->views_to_drop}, $source_view);
+        }
+    }
+
+    return $self;
+}
+
+
+sub _compute_trigger_differences {
+    my ($self) = @_;
+
+    my $target_schema = $self->target_schema;
+    my $source_schema = $self->source_schema;
+
+    my @target_triggers = sort { $a->name cmp $b->name } $target_schema->get_triggers;
+
+    ## do original/source procs exist in target?
+    foreach my $target_trigger (@target_triggers) {
+        my $source_trigger = $source_schema->get_trigger($target_trigger->name);
+
+        if (!$source_trigger) {
+            ## view is new
+            push(@{$self->triggers_to_create}, $target_trigger);
+        }
+        elsif (!$source_trigger->equals($target_trigger)) {
+            ## the view has changed
+            push(@{$self->triggers_to_atler}, $target_trigger);
+        }
+    }
+
+    foreach my $source_trigger ($source_schema->get_triggers) {
+        my $target_trigger = $target_schema->get_trigger($source_trigger->name);
+
+        unless ($target_trigger) {
+            # the trigger no longer exists
+            push(@{$self->triggers_to_drop}, $source_trigger);
         }
     }
 
