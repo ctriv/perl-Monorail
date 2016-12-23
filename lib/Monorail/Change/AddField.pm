@@ -2,6 +2,7 @@ package Monorail::Change::AddField;
 
 use Moose;
 use SQL::Translator::Schema::Field;
+use List::Util qw(max);
 
 with 'Monorail::Role::Change::StandardSQL';
 
@@ -66,7 +67,17 @@ sub as_sql_translator_field {
 sub transform_schema {
     my ($self, $schema) = @_;
 
-    $schema->get_table($self->table)->add_field($self->as_sql_translator_field);
+    my $table = $schema->get_table($self->table);
+
+    # set the order ourselves to avoid fragility in SQL::Translator's auto-order
+    # stuff.  Turns out we don't really care about order.
+
+    my $max = max map { $_->order } $table->get_fields;
+    $max ||= 0;
+    
+    my $field = $self->as_sql_translator_field;
+    $field->order($max + 1);
+    $table->add_field($field);
 }
 
 sub as_hashref_keys {
