@@ -98,7 +98,7 @@ has dbix => (
 =head2 db_type
 
 A string representing the type of database we're connecting to.  By default this
-is dirived from the connection within C<dbix>.
+is derived from the connection within C<dbix>.
 
 =cut
 
@@ -154,7 +154,8 @@ has all_migrations => (
 =head2 current_diff
 
 A L<Monorail::Diff> object representing the current difference
-between the DBIx::Class schema on disk and the sum of the current migrations.
+between the DBIx::Class schema defined in your perl source and the sum of the
+current migrations.
 
 =cut
 
