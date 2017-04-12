@@ -23,7 +23,7 @@ Monorail - Database Migrations
 
 =head1 DESCRIPTION
 
-This module attempts to provide a simplier and more robust way to manage
+This module attempts to provide a simpler and more robust way to manage
 database migrations with L<DBIx::Class>.  This library borrows (steals!) ideas
 heavily from L<django's migrations|https://docs.djangoproject.com/en/1.9/topics/migrations/>.
 
@@ -280,7 +280,7 @@ sub _schema_from_dbix {
 
     $monorail->migrate
 
-Updates the database that we're connected to the current state of the
+Updates the currently connected database to the current state of the
 migrations.  Walks the dependency tree in topological order, applying all
 migrations that are not yet applied.
 
@@ -413,7 +413,7 @@ sub _out {
 
 =head1 THANKS
 
-This word is basically a perl port of django migrations.  Many many thanks in
+This work is basically a perl port of django migrations.  Many many thanks in
 that direction.
 
 Anyone that worked on SQL::Translator, that module is a nuclear powered sonic
