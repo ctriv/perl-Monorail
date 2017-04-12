@@ -1,6 +1,7 @@
 Revision history for Monorail
 
 {{$NEXT}}
+    Documentation fixes. [Kevin Johnson]
 
 0.4 Fri Dec 23 2016
     If a table had columns added and removed in prior migrations, the order
