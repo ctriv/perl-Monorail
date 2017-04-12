@@ -1,5 +1,8 @@
 package Monorail::SQLTrans::Producer::PostgreSQL;
 
+use strict;
+use warnings;
+
 use base 'SQL::Translator::Producer::PostgreSQL';
 
 sub drop_view {
